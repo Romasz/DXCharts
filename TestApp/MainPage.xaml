@@ -1,0 +1,57 @@
+﻿<Page
+    x:Class="TestApp.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:TestApp"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:charts="using:DXCharts.Controls.Charts"
+    xmlns:chartsprim="using:DXCharts.Controls.ChartElements.Primitives"
+    mc:Ignorable="d">
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <charts:CartesianChart Grid.Column="0" Grid.Row="0" Padding="5" DataOrigin="5,0" VisibleRange="{x:Bind ChartRange, Mode=OneWay}" 
+                               Data="{x:Bind DataPoints, Mode=OneWay}">
+            <charts:CartesianChart.PointElement>
+                <chartsprim:StandardPoint Color="Red"/>
+            </charts:CartesianChart.PointElement>
+            <charts:CartesianChart.HorizontalAxis>
+                <chartsprim:StandardAxis Color="Gray" TickIncrement="2">
+                    <chartsprim:StandardAxis.ArrowHead>
+                        <chartsprim:LineArrowHead Color="Blue" Thickness="1"/>
+                    </chartsprim:StandardAxis.ArrowHead>
+                    <chartsprim:StandardAxis.Tick>
+                        <chartsprim:StandardTick Color="Brown" Thickness="1" Angle="0"/>
+                    </chartsprim:StandardAxis.Tick>
+                </chartsprim:StandardAxis>
+            </charts:CartesianChart.HorizontalAxis>
+            <charts:CartesianChart.VerticalAxis>
+                <chartsprim:StandardAxis Color="Green" TickIncrement="2">
+                    <chartsprim:StandardAxis.ArrowHead>
+                        <chartsprim:LineArrowHead Color="Blue" Thickness="1"/>
+                    </chartsprim:StandardAxis.ArrowHead>
+                    <chartsprim:StandardAxis.Tick>
+                        <chartsprim:StandardTick Color="Brown" Thickness="1" Angle="1.57"/>
+                    </chartsprim:StandardAxis.Tick>
+                </chartsprim:StandardAxis>
+            </charts:CartesianChart.VerticalAxis>
+        </charts:CartesianChart>
+        <Slider HorizontalAlignment="Stretch" Grid.Row="1" Grid.Column="0" Minimum="5" Maximum="35" Value="{x:Bind HorizontalRange, Mode=TwoWay}" TickFrequency="5"
+                Orientation="Horizontal"/>
+        <Slider VerticalAlignment="Stretch" Grid.Row="0" Grid.Column="1" Minimum="2" Maximum="22" Value="{x:Bind VerticalRange, Mode=TwoWay}" TickFrequency="5"
+                Orientation="Vertical"/>
+        <StackPanel Orientation="Vertical" Grid.Column="2" Grid.Row="0">
+            <Button Content="Add 10000 points" Margin="10" Click="Button_Click"/>
+            <TextBlock Text="{x:Bind DataPoints.Count, Mode=OneWay}" HorizontalAlignment="Center" FontSize="18"/>
+        </StackPanel>
+    </Grid>
+</Page>
