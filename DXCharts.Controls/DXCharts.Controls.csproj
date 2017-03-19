@@ -107,12 +107,16 @@
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ChartElements\Interfaces\IChartDataPresenter.cs" />
     <Compile Include="ChartElements\Interfaces\IChartAxis.cs" />
     <Compile Include="ChartElements\Primitives\ArrowHeads\LineArrowHead.cs" />
     <Compile Include="ChartElements\Primitives\Axes\StandardAxis.cs" />
     <Compile Include="ChartElements\Interfaces\IChartLineElement.cs" />
     <Compile Include="ChartElements\Interfaces\IChartPointElement.cs" />
     <Compile Include="ChartElements\Interfaces\IChartElement.cs" />
+    <Compile Include="ChartElements\Primitives\DataPresenters\PointPresenter.cs" />
+    <Compile Include="ChartElements\Primitives\DataPresenters\LinePresenter.cs" />
+    <Compile Include="ChartElements\Primitives\Lines\StandardLine.cs" />
     <Compile Include="ChartElements\Primitives\Points\StandardPoint.cs" />
     <Compile Include="ChartElements\Primitives\Tick\StandardTick.cs" />
     <Compile Include="ChartElements\Primitives\Tick\TickBase.cs" />

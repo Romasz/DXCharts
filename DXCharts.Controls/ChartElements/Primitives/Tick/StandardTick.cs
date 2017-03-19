@@ -22,7 +22,7 @@ namespace DXCharts.Controls.ChartElements.Primitives
         public StandardTick()
         {
             this.Size = new ElementSize(10, 10); // for test
-            this.TextFormat = new CanvasTextFormat() { FontSize = 9 }; // for test
+            this.TextFormat = new CanvasTextFormat() { FontSize = 12 }; // for test
         }
 
         public override void DrawOnCanvas(CanvasDrawingSession drawingSession)

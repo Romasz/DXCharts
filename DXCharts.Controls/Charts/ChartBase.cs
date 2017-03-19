@@ -15,7 +15,6 @@ namespace DXCharts.Controls.Charts
 {
     using ChartElements.Interfaces;
     using Classes;
-    using Microsoft.Graphics.Canvas;
     using Microsoft.Graphics.Canvas.UI.Xaml;
     using System.Collections.ObjectModel;
     using Windows.UI.Xaml;
@@ -34,12 +33,26 @@ namespace DXCharts.Controls.Charts
         public static readonly DependencyProperty VisibleRangeProperty =
             DependencyProperty.Register(nameof(VisibleRange), typeof(DataRange), typeof(ChartBase), new PropertyMetadata(null, OnPropertyChangedStatic));
 
+        public IChartDataPresenter DataPresenter
+        {
+            get { return (IChartDataPresenter)GetValue(DataPresenterProperty); }
+            set { SetValue(DataPresenterProperty, value); }
+        }
+
+        public static readonly DependencyProperty DataPresenterProperty =
+            DependencyProperty.Register(nameof(DataPresenter), typeof(IChartDataPresenter), typeof(ChartBase), new PropertyMetadata(null,
+                new PropertyChangedCallback((d, e) =>
+                {
+                    (d as ChartBase)?.PrepareDataPresenter();
+                    OnPropertyChangedStatic(d, e);
+                })));
+
 
         public Collection<IChartAxis> AxesCollection;
 
         public abstract void CreateAxes();
+        public abstract void PrepareDataPresenter();
         public abstract void UpdateAxes(ElementSize newSize);
-        public abstract void DrawData(CanvasDrawingSession drawingSession);
 
         private static void OnPropertyChangedStatic(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -81,13 +94,18 @@ namespace DXCharts.Controls.Charts
 
         private void RootCanvas_Draw(CanvasControl sender, CanvasDrawEventArgs args)
         {
+            // first draw points
+            if (DataPresenter != null)
+            {
+                DataPresenter.PresentData(args.DrawingSession);
+            }
+
+            // then axes
             UpdateAxes(new ElementSize((float)sender.ActualWidth, (float)sender.ActualHeight));
             foreach (var axis in AxesCollection)
             {
                 axis.DrawOnCanvas(args.DrawingSession);
             }
-            DrawData(args.DrawingSession);
         }
-
     }
 }

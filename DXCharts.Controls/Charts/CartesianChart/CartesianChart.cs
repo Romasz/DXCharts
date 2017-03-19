@@ -14,8 +14,6 @@ namespace DXCharts.Controls.Charts
 {
     using ChartElements.Interfaces;
     using Classes;
-    using Microsoft.Graphics.Canvas;
-    using System.Collections.Generic;
     using Windows.Foundation;
     using Windows.UI.Xaml;
 
@@ -38,29 +36,6 @@ namespace DXCharts.Controls.Charts
 
         public static readonly DependencyProperty VerticalAxisProperty =
             DependencyProperty.Register(nameof(VerticalAxis), typeof(IChartAxis), typeof(CartesianChart), new PropertyMetadata(null, OnPropertyChangedStatic));
-
-
-
-        public IChartPointElement PointElement
-        {
-            get { return (IChartPointElement)GetValue(PointElementProperty); }
-            set { SetValue(PointElementProperty, value); }
-        }
-
-        public static readonly DependencyProperty PointElementProperty =
-            DependencyProperty.Register(nameof(PointElement), typeof(IChartPointElement), typeof(CartesianChart), new PropertyMetadata(null, OnPropertyChangedStatic));
-
-
-
-        public IEnumerable<Point> Data
-        {
-            get { return (IEnumerable<Point>)GetValue(DataProperty); }
-            set { SetValue(DataProperty, value); }
-        }
-
-        public static readonly DependencyProperty DataProperty =
-            DependencyProperty.Register(nameof(Data), typeof(IEnumerable<Point>), typeof(CartesianChart), new PropertyMetadata(null, OnPropertyChangedStatic));
-
 
 
         private static void OnPropertyChangedStatic(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -89,7 +64,28 @@ namespace DXCharts.Controls.Charts
             VerticalAxis.DataOrigin = DataOrigin.Y;
         }
 
+        public override void PrepareDataPresenter()
+        {
+            if (DataPresenter != null)
+            {
+                DataPresenter.Convert = Convert;
+                DataPresenter.IsPointInRange = IsInRange;
+                DataPresenter.CollectionChanged += DataPresenter_CollectionChanged;
+            }
+        }
 
+        private void DataPresenter_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            // redraw the chart
+            OnPropertyChanged(this, null);
+        }
+
+        private bool IsInRange(Point point) => VisibleRange.InRange(point);
+
+        private ChartPoint Convert(Point point)
+        {
+            return new ChartPoint(GetXCoordinate(point.X), GetYCoordinate(point.Y));
+        }
 
         private float GetXCoordinate(double data)
         {
@@ -120,19 +116,5 @@ namespace DXCharts.Controls.Charts
             }
         }
 
-        public override void DrawData(CanvasDrawingSession drawingSession)
-        {
-            if (PointElement != null)
-            {
-                foreach (var point in Data)
-                {
-                    if (VisibleRange.InRange(point))
-                    {
-                        this.PointElement.Position = new ChartPoint(GetXCoordinate(point.X), GetYCoordinate(point.Y));
-                        this.PointElement.DrawOnCanvas(drawingSession);
-                    }
-                }
-            }
-        }
     }
 }

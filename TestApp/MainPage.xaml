@@ -9,6 +9,19 @@
     xmlns:chartsprim="using:DXCharts.Controls.ChartElements.Primitives"
     mc:Ignorable="d">
 
+    <Page.Resources>
+        <chartsprim:PointPresenter Data="{Binding DataPoints, Mode=OneWay}" x:Key="PointPresenter">
+            <chartsprim:PointPresenter.PointElement>
+                <chartsprim:StandardPoint Color="Red"/>
+            </chartsprim:PointPresenter.PointElement>
+        </chartsprim:PointPresenter>
+        <chartsprim:LinePresenter Data="{Binding DataPoints, Mode=OneWay}" x:Key="LinePresenter">
+            <chartsprim:LinePresenter.LineElement>
+                <chartsprim:StandardLine Color="Red" Thickness="1"/>
+            </chartsprim:LinePresenter.LineElement>
+        </chartsprim:LinePresenter>
+    </Page.Resources>
+    
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
@@ -19,18 +32,15 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <charts:CartesianChart Grid.Column="0" Grid.Row="0" Padding="5" DataOrigin="5,0" VisibleRange="{x:Bind ChartRange, Mode=OneWay}" 
-                               Data="{x:Bind DataPoints, Mode=OneWay}">
-            <charts:CartesianChart.PointElement>
-                <chartsprim:StandardPoint Color="Red"/>
-            </charts:CartesianChart.PointElement>
+        <charts:CartesianChart Grid.Column="0" Grid.Row="0" Padding="5" DataOrigin="5,0" VisibleRange="{x:Bind ChartRange, Mode=OneWay}"
+                               DataPresenter="{x:Bind DataPresenter, Mode=OneWay}">
             <charts:CartesianChart.HorizontalAxis>
-                <chartsprim:StandardAxis Color="Gray" TickIncrement="2">
+                <chartsprim:StandardAxis Color="Green" TickIncrement="2">
                     <chartsprim:StandardAxis.ArrowHead>
                         <chartsprim:LineArrowHead Color="Blue" Thickness="1"/>
                     </chartsprim:StandardAxis.ArrowHead>
                     <chartsprim:StandardAxis.Tick>
-                        <chartsprim:StandardTick Color="Brown" Thickness="1" Angle="0"/>
+                        <chartsprim:StandardTick Color="Black" Thickness="1" Angle="0"/>
                     </chartsprim:StandardAxis.Tick>
                 </chartsprim:StandardAxis>
             </charts:CartesianChart.HorizontalAxis>
@@ -40,7 +50,7 @@
                         <chartsprim:LineArrowHead Color="Blue" Thickness="1"/>
                     </chartsprim:StandardAxis.ArrowHead>
                     <chartsprim:StandardAxis.Tick>
-                        <chartsprim:StandardTick Color="Brown" Thickness="1" Angle="1.57"/>
+                        <chartsprim:StandardTick Color="Black" Thickness="1" Angle="1.57"/>
                     </chartsprim:StandardAxis.Tick>
                 </chartsprim:StandardAxis>
             </charts:CartesianChart.VerticalAxis>
@@ -52,6 +62,8 @@
         <StackPanel Orientation="Vertical" Grid.Column="2" Grid.Row="0">
             <Button Content="Add 10000 points" Margin="10" Click="Button_Click"/>
             <TextBlock Text="{x:Bind DataPoints.Count, Mode=OneWay}" HorizontalAlignment="Center" FontSize="18"/>
+            <Button Content="Present points" Margin="10" Click="PointButton_Click"/>
+            <Button Content="Present lines" Margin="10" Click="LineButton_Click"/>
         </StackPanel>
     </Grid>
 </Page>

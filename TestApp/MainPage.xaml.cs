@@ -12,6 +12,7 @@
 
 namespace TestApp
 {
+    using DXCharts.Controls.ChartElements.Interfaces;
     using DXCharts.Controls.Classes;
     using System;
     using System.Collections.Generic;
@@ -32,6 +33,8 @@ namespace TestApp
 
         public List<Point> dataPoints = new List<Point>();
 
+        public IChartDataPresenter DataPresenter { get; set; }
+
         // ugly way for testing
         public List<Point> DataPoints => dataPoints.ToList();
 
@@ -40,18 +43,18 @@ namespace TestApp
             get { return ChartRange.Width / 2; }
             set
             {
-                ChartRange = new DataRange(-value, ChartRange.Minimum.Y, value, ChartRange.Maximum.Y);
-                RaiseProperty(nameof(ChartRange));
+                this.ChartRange = new DataRange(-value, this.ChartRange.Minimum.Y, value, this.ChartRange.Maximum.Y);
+                this.RaiseProperty(nameof(this.ChartRange));
             }
         }
 
         public double VerticalRange
         {
-            get { return ChartRange.Height / 2; }
+            get { return this.ChartRange.Height / 2; }
             set
             {
-                ChartRange = new DataRange(ChartRange.Minimum.X, -value, ChartRange.Maximum.X, value);
-                RaiseProperty(nameof(ChartRange));
+                this.ChartRange = new DataRange(this.ChartRange.Minimum.X, -value, this.ChartRange.Maximum.X, value);
+                this.RaiseProperty(nameof(this.ChartRange));
             }
         }
 
@@ -61,6 +64,8 @@ namespace TestApp
         {
             this.dataPoints.Add(new Point(1, 1));
             this.InitializeComponent();
+            this.DataContext = this;
+            this.DataPresenter = this.Resources["PointPresenter"] as IChartDataPresenter;
         }
 
         private void Button_Click(object sender, Windows.UI.Xaml.RoutedEventArgs e)
@@ -71,7 +76,19 @@ namespace TestApp
                 double randY = random.NextDouble() * ChartRange.Height;
                 dataPoints.Add(new Point(ChartRange.Minimum.X + randX, ChartRange.Minimum.Y + randY));
             }
-            RaiseProperty(nameof(DataPoints));
+            this.RaiseProperty(nameof(DataPoints));
+        }
+
+        private void PointButton_Click(object sender, Windows.UI.Xaml.RoutedEventArgs e)
+        {
+            this.DataPresenter = this.Resources["PointPresenter"] as IChartDataPresenter;
+            this.RaiseProperty(nameof(DataPresenter));
+        }
+
+        private void LineButton_Click(object sender, Windows.UI.Xaml.RoutedEventArgs e)
+        {
+            this.DataPresenter = this.Resources["LinePresenter"] as IChartDataPresenter;
+            this.RaiseProperty(nameof(DataPresenter));
         }
     }
 }
