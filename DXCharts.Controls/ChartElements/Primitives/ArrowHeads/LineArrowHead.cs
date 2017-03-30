@@ -19,28 +19,8 @@ namespace DXCharts.Controls.ChartElements.Primitives
     using System.Numerics;
     using Windows.UI;
 
-    public class LineArrowHead : IChartPointElement
+    public class LineArrowHead : ArrowHeadBase
     {
-        /// <summary>
-        /// Orientation of arrowhead in radians
-        /// </summary>
-        public double Angle { get; set; }
-
-        /// <summary>
-        /// Element's color
-        /// </summary>
-        public Color Color { get; set; }
-
-        /// <summary>
-        /// Position at which element will be drawn
-        /// </summary>
-        public ChartPoint Position { get; set; }
-
-        /// <summary>
-        /// Size of the element
-        /// </summary>
-        public ElementSize Size { get; set; }
-
         /// <summary>
         /// Thickness of arrow's lines
         /// </summary>
@@ -48,13 +28,16 @@ namespace DXCharts.Controls.ChartElements.Primitives
 
         public LineArrowHead()
         {
-            this.Size = new ElementSize(10, 10); // for test
+            this.Angle = 0;
+            this.Color = Colors.Black;
+            this.Position = new ChartPoint(0, 0);
+            this.Thickness = 1.0d;
+            this.Size = new ElementSize(10, 10);
         }
 
-        public void DrawOnCanvas(CanvasDrawingSession drawingSession)
+        public override void DrawOnCanvas(CanvasDrawingSession drawingSession)
         {
             var previousTransform = drawingSession.Transform;
-
             drawingSession.Transform = Matrix3x2.CreateRotation((float)this.Angle, new Vector2(this.Position.X, this.Position.Y));
             using (var pathBuilder = new CanvasPathBuilder(drawingSession))
             {

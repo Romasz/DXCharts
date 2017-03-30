@@ -55,7 +55,7 @@ namespace DXCharts.Controls.ChartElements.Primitives
         /// <summary>
         /// Element used as arrowhead
         /// </summary>
-        public IChartPointElement ArrowHead { get; set; }
+        public ArrowHeadBase ArrowHead { get; set; }
 
         /// <summary>
         /// Element used as tick
