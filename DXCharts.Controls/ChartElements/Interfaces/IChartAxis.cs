@@ -10,27 +10,46 @@
 // THE CODE OR THE USE OR OTHER DEALINGS IN THE CODE.
 // ******************************************************************
 
+
 namespace DXCharts.Controls.ChartElements.Interfaces
 {
+    using Classes;
+    using Windows.Foundation;
+    using Windows.UI.Xaml;
+
     /// <summary>
     /// The interface of axis element
     /// </summary>
     public interface IChartAxis : IChartLineElement
     {
         /// <summary>
-        /// Pixels per data
+        /// If set to true, axis <see cref="DataRatio"/> will be adjusted so that all the data are visible
         /// </summary>
-        double DataRatio { get; set; }
+        bool AdjustDataRatio { get; set; }
 
         /// <summary>
-        /// Orgin of data
+        /// Place where second axis is placed
         /// </summary>
         double DataOrigin { get; set; }
 
         /// <summary>
-        /// Orgin of axis
+        /// Method preparing the axis
         /// </summary>
-        float OriginPoint { get; set; }
+        void PrepareAxis();
 
+        /// <summary>
+        /// Method returning chart coordinate basing on data
+        /// </summary>
+        /// <param name="coordinate">data coordinate</param>
+        /// <returns>chart coordinate</returns>
+        float GetChartCoordinate(double coordinate);
+
+        /// <summary>
+        /// Update axis basing on current window size and visible range
+        /// <param name="windowSize">current window size</param>
+        /// <param name="axesMargin">margin of axes</param>
+        /// <param name="visibleRange">visible data range</param>
+        /// <param name="dataOrigin">origin of data - where axes cross and ticks start</param>
+        void Update(Size windowSize, Thickness axesMargin, DataRange visibleRange, Point dataOrigin);
     }
 }

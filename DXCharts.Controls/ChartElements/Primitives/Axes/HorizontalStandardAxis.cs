@@ -14,89 +14,72 @@
 namespace DXCharts.Controls.ChartElements.Primitives
 {
     using System;
-    using Interfaces;
     using Classes;
     using Microsoft.Graphics.Canvas;
-    using Microsoft.Graphics.Canvas.Geometry;
-    using Windows.UI;
+    using Windows.Foundation;
+    using Windows.UI.Xaml;
 
-    public class StandardAxis : IChartAxis
+    public class HorizontalStandardAxis : AxisBase
     {
         /// <summary>
-        /// Color of the axis
+        /// Position of the axis
         /// </summary>
-        public Color Color { get; set; }
+        public HorizontalAxisPositions Position { get; set; }
 
-        /// <summary>
-        /// End point of the axis
-        /// </summary>
-        public ChartPoint EndPoint { get; set; }
-
-        /// <summary>
-        /// If axis is working in inverse mode
-        /// </summary>
-        public bool IsInverse { get; set; }
-
-        /// <summary>
-        /// Axis start point
-        /// </summary>
-        public ChartPoint StartPoint { get; set; }
-
-        /// <summary>
-        /// Axis stroke style
-        /// </summary>
-        public CanvasStrokeStyle StrokeStyle { get; set; }
-
-        /// <summary>
-        /// Axis thickness
-        /// </summary>
-        public double Thickness { get; set; }
-
-        /// <summary>
-        /// Element used as arrowhead
-        /// </summary>
-        public ArrowHeadBase ArrowHead { get; set; }
-
-        /// <summary>
-        /// Element used as tick
-        /// </summary>
-        public TickBase Tick { get; set; }
-
-        /// <summary>
-        /// Data incerement for tick placememnt
-        /// </summary>
-        public double TickIncrement { get; set; }
-
-        /// <summary>
-        /// Pixels per data
-        /// </summary>
-        public double DataRatio { get; set; }
-
-        /// <summary>
-        /// Orgin of data
-        /// </summary>
-        public double DataOrigin { get; set; }
-
-        /// <summary>
-        /// Orgin of axis
-        /// </summary>
-        public float OriginPoint { get; set; }
-
-        public StandardAxis()
+        public HorizontalStandardAxis() : base()
         {
-            this.Color = Colors.Gray;
-            this.IsInverse = false;
-            this.StartPoint = default(ChartPoint);
-            this.EndPoint = default(ChartPoint);
-            this.ArrowHead = null;
-            this.Thickness = 1.0f;
-            this.Tick = null;
-            this.TickIncrement = 0.0f;
-            this.DataOrigin = 0.0d;
-            this.StrokeStyle = default(CanvasStrokeStyle);
+            this.Position = HorizontalAxisPositions.Bottom;
         }
 
-        public void DrawOnCanvas(CanvasDrawingSession drawingSession)
+        public override void PrepareAxis()
+        {
+
+        }
+
+        public override float GetChartCoordinate(double coordinate)
+        {
+            if (!IsInverse)
+            {
+                return (float)(DataRatio * (coordinate - visibleRange.Width));
+            }
+            else
+            {
+                return (float)(DataRatio * (visibleRange.Height - coordinate));
+            }
+        }
+
+        public override void Update(Size windowSize, Thickness axesMargin, DataRange visibleRange, Point dataOrigin)
+        {
+            this.DataOrigin = dataOrigin.X;
+            this.DataRatio = windowSize.Width / visibleRange.Width;
+
+            switch (Position)
+            {
+                case HorizontalAxisPositions.Bottom:
+                    this.isVisible = true;
+                    this.StartPoint = new ChartPoint((float)axesMargin.Left, (float)(windowSize.Height - axesMargin.Bottom));
+                    this.StartPoint = new ChartPoint((float)(windowSize.Width - axesMargin.Right), (float)(windowSize.Height - axesMargin.Bottom));
+                    break;
+                case HorizontalAxisPositions.Middle:
+                    this.isVisible = true;
+                    this.StartPoint = new ChartPoint((float)axesMargin.Left, (float)(windowSize.Height / 2));
+                    this.StartPoint = new ChartPoint((float)(windowSize.Width - axesMargin.Right), (float)(windowSize.Height / 2));
+                    break;
+                case HorizontalAxisPositions.Top:
+                    this.isVisible = true;
+                    this.StartPoint = new ChartPoint((float)axesMargin.Left, (float)(axesMargin.Top));
+                    this.StartPoint = new ChartPoint((float)(windowSize.Width - axesMargin.Right), (float)(axesMargin.Top));
+                    break;
+                case HorizontalAxisPositions.Free:
+                default:
+                    this.isVisible = visibleRange.InVerticalRange(dataOrigin.Y);
+                    this.StartPoint = new ChartPoint((float)axesMargin.Left, (float)(windowSize.Height * (dataOrigin.Y - visibleRange.Minimum.Y) / visibleRange.Height));
+                    this.StartPoint = new ChartPoint((float)(windowSize.Width - axesMargin.Right), (float)(windowSize.Height * (dataOrigin.Y - visibleRange.Minimum.Y) / visibleRange.Height));
+                    break;
+            }
+        }
+
+        public override void DrawOnCanvas(CanvasDrawingSession drawingSession)
         {
             drawingSession.DrawLine(this.StartPoint.X, this.StartPoint.Y, this.EndPoint.X, this.EndPoint.Y, this.Color, (float)this.Thickness, this.StrokeStyle);
 

@@ -13,6 +13,7 @@
 namespace DXCharts.Controls.ChartElements.Interfaces
 {
     using Classes;
+    using Windows.Foundation;
 
     /// <summary>
     /// The point element that can be drawn on CanvasControl
@@ -32,6 +33,6 @@ namespace DXCharts.Controls.ChartElements.Interfaces
         /// <summary>
         /// Element's size
         /// </summary>
-        ElementSize Size { get; set; }
+        Size Size { get; set; }
     }
 }

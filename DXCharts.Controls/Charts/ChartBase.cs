@@ -17,6 +17,7 @@ namespace DXCharts.Controls.Charts
     using Classes;
     using Microsoft.Graphics.Canvas.UI.Xaml;
     using System.Collections.ObjectModel;
+    using Windows.Foundation;
     using Windows.UI.Xaml;
     using Windows.UI.Xaml.Controls;
 
@@ -52,7 +53,6 @@ namespace DXCharts.Controls.Charts
 
         public abstract void CreateAxes();
         public abstract void PrepareDataPresenter();
-        public abstract void UpdateAxes(ElementSize newSize);
 
         private static void OnPropertyChangedStatic(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -94,6 +94,12 @@ namespace DXCharts.Controls.Charts
 
         private void RootCanvas_Draw(CanvasControl sender, CanvasDrawEventArgs args)
         {
+            // first update axes - important to have updated DataRatio and methods responsible for geting ChartPoints
+            foreach (var axis in AxesCollection)
+            {
+                axis.Update(new Size(sender.ActualWidth, sender.ActualHeight), VisibleRange);
+            }
+
             // first draw points
             if (DataPresenter != null)
             {
@@ -101,7 +107,6 @@ namespace DXCharts.Controls.Charts
             }
 
             // then axes
-            UpdateAxes(new ElementSize((float)sender.ActualWidth, (float)sender.ActualHeight));
             foreach (var axis in AxesCollection)
             {
                 axis.DrawOnCanvas(args.DrawingSession);

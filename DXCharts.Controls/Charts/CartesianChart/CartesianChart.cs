@@ -13,35 +13,30 @@
 namespace DXCharts.Controls.Charts
 {
     using ChartElements.Interfaces;
+    using ChartElements.Primitives;
     using Classes;
     using Windows.Foundation;
     using Windows.UI.Xaml;
 
     public sealed class CartesianChart : ChartBase
     {
-        public IChartAxis HorizontalAxis
+        public AxisBase HorizontalAxis
         {
-            get { return (IChartAxis)GetValue(HorizontalAxisProperty); }
+            get { return (AxisBase)GetValue(HorizontalAxisProperty); }
             set { SetValue(HorizontalAxisProperty, value); }
         }
 
         public static readonly DependencyProperty HorizontalAxisProperty =
-            DependencyProperty.Register(nameof(HorizontalAxis), typeof(IChartAxis), typeof(CartesianChart), new PropertyMetadata(null, OnPropertyChangedStatic));
+            DependencyProperty.Register(nameof(HorizontalAxis), typeof(AxisBase), typeof(CartesianChart), new PropertyMetadata(null, OnPropertyChangedStatic));
 
-        public IChartAxis VerticalAxis
+        public AxisBase VerticalAxis
         {
-            get { return (IChartAxis)GetValue(VerticalAxisProperty); }
+            get { return (AxisBase)GetValue(VerticalAxisProperty); }
             set { SetValue(VerticalAxisProperty, value); }
         }
 
         public static readonly DependencyProperty VerticalAxisProperty =
-            DependencyProperty.Register(nameof(VerticalAxis), typeof(IChartAxis), typeof(CartesianChart), new PropertyMetadata(null, OnPropertyChangedStatic));
-
-
-        private static void OnPropertyChangedStatic(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            (d as CartesianChart)?.OnPropertyChanged(d, e.Property);
-        }
+            DependencyProperty.Register(nameof(VerticalAxis), typeof(AxisBase), typeof(CartesianChart), new PropertyMetadata(null, OnPropertyChangedStatic));
 
         public Point DataOrigin
         {
@@ -52,6 +47,19 @@ namespace DXCharts.Controls.Charts
         public static readonly DependencyProperty DataOriginProperty =
             DependencyProperty.Register(nameof(DataOrigin), typeof(Point), typeof(CartesianChart), new PropertyMetadata(new Point(0, 0), OnPropertyChangedStatic));
 
+        public Thickness AxesMargin
+        {
+            get { return (Thickness)GetValue(AxesMarginProperty); }
+            set { SetValue(AxesMarginProperty, value); }
+        }
+
+        public static readonly DependencyProperty AxesMarginProperty =
+            DependencyProperty.Register(nameof(AxesMargin), typeof(Thickness), typeof(CartesianChart), new PropertyMetadata(new Thickness(5,5,5,5), OnPropertyChangedStatic));
+
+        private static void OnPropertyChangedStatic(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            (d as CartesianChart)?.OnPropertyChanged(d, e.Property);
+        }
 
         public CartesianChart() : base() { }
 
@@ -96,25 +104,5 @@ namespace DXCharts.Controls.Charts
         {
             return (float)(rootCanvas.ActualHeight * (VisibleRange.Maximum.Y - data) / VisibleRange.Height);
         }
-
-        public override void UpdateAxes(ElementSize newSize)
-        {
-            if (HorizontalAxis != null && VisibleRange.InVerticalRange(DataOrigin.Y))
-            {
-                HorizontalAxis.StartPoint = new ChartPoint(0.0f, GetYCoordinate(DataOrigin.Y));
-                HorizontalAxis.EndPoint = new ChartPoint(newSize.Width, GetYCoordinate(DataOrigin.Y));
-                HorizontalAxis.DataRatio = newSize.Width / VisibleRange.Width;
-                HorizontalAxis.OriginPoint = GetXCoordinate(DataOrigin.X);
-            }
-
-            if (VerticalAxis != null && VisibleRange.InHorizontalRange(DataOrigin.X))
-            {
-                VerticalAxis.EndPoint = new ChartPoint(GetXCoordinate(DataOrigin.X), 0.0f);
-                VerticalAxis.StartPoint = new ChartPoint(GetXCoordinate(DataOrigin.X), newSize.Height);
-                VerticalAxis.DataRatio = newSize.Height / VisibleRange.Height;
-                VerticalAxis.OriginPoint = GetYCoordinate(DataOrigin.Y);
-            }
-        }
-
     }
 }

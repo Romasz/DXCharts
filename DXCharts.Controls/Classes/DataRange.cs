@@ -23,35 +23,21 @@ namespace DXCharts.Controls.Classes
         /// <summary>
         /// Minimum X and Y
         /// </summary>
-        public DataPoint Minimum { get; private set; }
+        public readonly Point Minimum;
 
         /// <summary>
         /// Maximum X and Y
         /// </summary>
-        public DataPoint Maximum { get; private set; }
+        public readonly Point Maximum;
 
-        public double Width { get; set; }
-        public double Height { get; set; }
+        public readonly double Width;
+        public readonly double Height;
 
-        public bool InVerticalRange(double data)
-        {
-            return data >= Minimum.Y && data <= Maximum.Y;
-        }
-        
-        public bool InHorizontalRange(double data)
-        {
-            return data >= Minimum.X && data <= Maximum.X;
-        }
+        public bool InVerticalRange(double data) => data >= Minimum.Y && data <= Maximum.Y;
 
-        public bool InRange(Point data)
-        {
-            return data.X >= Minimum.X && data.X <= Maximum.X && data.Y >= Minimum.Y && data.Y <= Maximum.Y;
-        }
+        public bool InHorizontalRange(double data) => data >= Minimum.X && data <= Maximum.X;
 
-        public bool InRange(DataPoint data)
-        {
-            return data.X >= Minimum.X && data.X <= Maximum.X && data.Y >= Minimum.Y && data.Y <= Maximum.Y;
-        }
+        public bool InRange(Point data) => InHorizontalRange(data.X) && InVerticalRange(data.Y);
 
         public DataRange(double x1, double y1, double x2, double y2)
         {
@@ -61,12 +47,12 @@ namespace DXCharts.Controls.Classes
                 throw new ArgumentException("Bad data range value.");
             }
 
-            this.Minimum = new DataPoint(Math.Min(x1, x2), Math.Min(y1, y2));
-            this.Maximum = new DataPoint(Math.Max(x1, x2), Math.Max(y1, y2));
+            this.Minimum = new Point(Math.Min(x1, x2), Math.Min(y1, y2));
+            this.Maximum = new Point(Math.Max(x1, x2), Math.Max(y1, y2));
             this.Width = Math.Abs(this.Maximum.X - this.Minimum.X);
             this.Height = Math.Abs(this.Maximum.Y - this.Minimum.Y);
         }
 
-        public DataRange(Windows.Foundation.Point firstPoint, Windows.Foundation.Point secondPoint) : this(firstPoint.X, firstPoint.Y, secondPoint.X, secondPoint.Y) { }
+        public DataRange(Point firstPoint, Point secondPoint) : this(firstPoint.X, firstPoint.Y, secondPoint.X, secondPoint.Y) { }
     }
 }
