@@ -22,7 +22,7 @@ namespace DXCharts.Controls.ChartElements.Primitives
     using Windows.Foundation;
     using Windows.UI.Xaml;
 
-    public abstract class AxisBase : IChartAxis
+    public abstract class AxisBase : IChartAxis, IInvertible
     {
         /// <summary>
         /// Color of the axis
@@ -35,9 +35,9 @@ namespace DXCharts.Controls.ChartElements.Primitives
         public ChartPoint EndPoint { get; set; }
 
         /// <summary>
-        /// If axis is working in inverse mode
+        /// Value indicating if element should be inverted
         /// </summary>
-        public bool IsInverse { get; set; }
+        public bool IsInverted { get; set; }
 
         /// <summary>
         /// Axis start point
@@ -57,7 +57,7 @@ namespace DXCharts.Controls.ChartElements.Primitives
         /// <summary>
         /// Element used as arrowhead
         /// </summary>
-        public ArrowHeadBase ArrowHead { get; set; }
+        public ArrowheadBase ArrowHead { get; set; }
 
         /// <summary>
         /// Element used as tick
@@ -77,7 +77,7 @@ namespace DXCharts.Controls.ChartElements.Primitives
         /// <summary>
         /// Orgin of data
         /// </summary>
-        public double DataOrigin { get; set; }
+        protected Point DataOrigin { get; set; }
 
         /// <summary>
         /// If set to true, axis <see cref="DataRatio"/> will be adjusted so that all the data are visible
@@ -97,23 +97,23 @@ namespace DXCharts.Controls.ChartElements.Primitives
         public AxisBase()
         {
             this.Color = Colors.Gray;
-            this.IsInverse = false;
+            this.IsInverted = false;
             this.StartPoint = default(ChartPoint);
             this.EndPoint = default(ChartPoint);
             this.ArrowHead = null;
             this.Thickness = 1.0f;
             this.Tick = null;
             this.TickIncrement = 0.0f;
-            this.DataOrigin = 0.0d;
+            this.DataOrigin = new Point(0d, 0d);
             this.StrokeStyle = default(CanvasStrokeStyle);
             this.AdjustDataRatio = false;
             this.isVisible = true;
-            this.visibleRange = new Size(1, 1);
+            this.visibleRange = new Size(1d, 1d);
         }
 
         public abstract void DrawOnCanvas(CanvasDrawingSession drawingSession);
         public abstract float GetChartCoordinate(double coordinate);
-        public abstract void PrepareAxis();
-        public abstract void Update(Size windowSize, Thickness axesMargin, DataRange visibleRange, Point dataOrigin);
+        public abstract void PrepareAxis(Point DataOrigin);
+        public abstract void Update(Size windowSize, Thickness axesMargin, DataRange visibleRange);
     }
 }

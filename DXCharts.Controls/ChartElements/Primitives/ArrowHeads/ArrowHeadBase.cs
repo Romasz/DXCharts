@@ -17,17 +17,18 @@ namespace DXCharts.Controls.ChartElements.Primitives
     using Interfaces;
     using Microsoft.Graphics.Canvas;
     using Windows.UI;
+    using Windows.Foundation;
 
-    public abstract class ArrowHeadBase : IChartElement
+    public abstract class ArrowheadBase : IChartElement, IInvertible
     {
-        private double angle;
+        protected double AngleInRadians { get; private set; }
         /// <summary>
         /// Orientation - set in degrees, get in radians
         /// </summary>
-        public double Angle
+        protected double Angle
         {
-            get { return angle * Math.PI / 180; }
-            set { angle = value; }
+            get { return AngleInRadians * Math.PI / 180; }
+            set { AngleInRadians = value / 180 * Math.PI; }
         }
 
         /// <summary>
@@ -43,8 +44,14 @@ namespace DXCharts.Controls.ChartElements.Primitives
         /// <summary>
         /// Size of the element - rectanle in which it will be drawn
         /// </summary>
-        public ElementSize Size { get; set; }
+        public Size Size { get; set; }
 
+
+        public bool IsInverted { get; set; }
+
+        /// <summary>
+        /// Value indicating if element should be inverted
+        /// </summary>
         public abstract void DrawOnCanvas(CanvasDrawingSession drawingSession);
     }
 }

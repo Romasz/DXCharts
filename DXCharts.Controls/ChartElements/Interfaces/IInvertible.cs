@@ -14,20 +14,13 @@
 namespace DXCharts.Controls.ChartElements.Interfaces
 {
     /// <summary>
-    /// The interface of axis element
+    /// The interface of element that can be inverted
     /// </summary>
-    public interface IChartAxis : IChartLineElement
+    public interface IInvertible 
     {
         /// <summary>
-        /// If set to true, axis <see cref="DataRatio"/> will be adjusted so that all the data are visible
+        /// Value indicating if element should be inverted
         /// </summary>
-        bool AdjustDataRatio { get; set; }
-
-        /// <summary>
-        /// Method returning chart coordinate basing on data
-        /// </summary>
-        /// <param name="coordinate">data coordinate</param>
-        /// <returns>chart coordinate</returns>
-        float GetChartCoordinate(double coordinate);
+        bool IsInverted { get; set; }
     }
 }

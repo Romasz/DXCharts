@@ -12,7 +12,6 @@
 
 namespace DXCharts.Controls.Charts
 {
-    using ChartElements.Interfaces;
     using ChartElements.Primitives;
     using Classes;
     using Windows.Foundation;
@@ -54,7 +53,7 @@ namespace DXCharts.Controls.Charts
         }
 
         public static readonly DependencyProperty AxesMarginProperty =
-            DependencyProperty.Register(nameof(AxesMargin), typeof(Thickness), typeof(CartesianChart), new PropertyMetadata(new Thickness(5,5,5,5), OnPropertyChangedStatic));
+            DependencyProperty.Register(nameof(AxesMargin), typeof(Thickness), typeof(CartesianChart), new PropertyMetadata(new Thickness(5, 5, 5, 5), OnPropertyChangedStatic));
 
         private static void OnPropertyChangedStatic(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -66,43 +65,34 @@ namespace DXCharts.Controls.Charts
 
         public override void CreateAxes()
         {
-            AxesCollection.Add(HorizontalAxis);
-            AxesCollection.Add(VerticalAxis);
-            HorizontalAxis.DataOrigin = DataOrigin.X;
-            VerticalAxis.DataOrigin = DataOrigin.Y;
+            if (HorizontalAxis != null)
+            {
+                HorizontalAxis.PrepareAxis(DataOrigin);
+                AxesCollection.Add(HorizontalAxis);
+            }
+
+            if (VerticalAxis != null)
+            {
+                VerticalAxis.PrepareAxis(new Point(DataOrigin.Y, DataOrigin.X));
+                AxesCollection.Add(VerticalAxis);
+            }
         }
+
+        public override void UpdateAxes(Size windowSize)
+        {
+            HorizontalAxis?.Update(windowSize, this.AxesMargin, this.VisibleRange);
+            VerticalAxis?.Update(windowSize, this.AxesMargin, this.VisibleRange);
+        }
+
 
         public override void PrepareDataPresenter()
         {
             if (DataPresenter != null)
             {
-                DataPresenter.Convert = Convert;
-                DataPresenter.IsPointInRange = IsInRange;
-                DataPresenter.CollectionChanged += DataPresenter_CollectionChanged;
+                DataPresenter.Convert = (point) => new ChartPoint(HorizontalAxis.GetChartCoordinate(point.X), VerticalAxis.GetChartCoordinate(point.Y));
+                DataPresenter.IsPointInRange = (point) => VisibleRange.InRange(point);
+                DataPresenter.CollectionChanged += (s,e) => OnPropertyChanged(this,null);
             }
-        }
-
-        private void DataPresenter_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-        {
-            // redraw the chart
-            OnPropertyChanged(this, null);
-        }
-
-        private bool IsInRange(Point point) => VisibleRange.InRange(point);
-
-        private ChartPoint Convert(Point point)
-        {
-            return new ChartPoint(GetXCoordinate(point.X), GetYCoordinate(point.Y));
-        }
-
-        private float GetXCoordinate(double data)
-        {
-            return (float)(rootCanvas.ActualWidth * (data - VisibleRange.Minimum.X) / VisibleRange.Width);
-        }
-
-        private float GetYCoordinate(double data)
-        {
-            return (float)(rootCanvas.ActualHeight * (VisibleRange.Maximum.Y - data) / VisibleRange.Height);
         }
     }
 }

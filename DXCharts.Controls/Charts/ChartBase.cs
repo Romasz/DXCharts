@@ -52,6 +52,7 @@ namespace DXCharts.Controls.Charts
         public Collection<IChartAxis> AxesCollection;
 
         public abstract void CreateAxes();
+        public abstract void UpdateAxes(Size windowSize);
         public abstract void PrepareDataPresenter();
 
         private static void OnPropertyChangedStatic(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -76,10 +77,10 @@ namespace DXCharts.Controls.Charts
 
         protected override void OnApplyTemplate()
         {
+            CreateAxes();
             rootCanvas = GetTemplateChild("RootCanvas") as CanvasControl;
             rootCanvas.CreateResources += RootCanvas_CreateResources;
             rootCanvas.Draw += RootCanvas_Draw;
-            CreateAxes();
         }
 
         protected void OnPropertyChanged(DependencyObject d, DependencyProperty prop)
@@ -95,10 +96,7 @@ namespace DXCharts.Controls.Charts
         private void RootCanvas_Draw(CanvasControl sender, CanvasDrawEventArgs args)
         {
             // first update axes - important to have updated DataRatio and methods responsible for geting ChartPoints
-            foreach (var axis in AxesCollection)
-            {
-                axis.Update(new Size(sender.ActualWidth, sender.ActualHeight), VisibleRange);
-            }
+            UpdateAxes(new Size(sender.ActualWidth, sender.ActualHeight));
 
             // first draw points
             if (DataPresenter != null)

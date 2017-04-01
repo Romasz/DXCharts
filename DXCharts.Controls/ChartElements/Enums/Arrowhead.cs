@@ -10,24 +10,14 @@
 // THE CODE OR THE USE OR OTHER DEALINGS IN THE CODE.
 // ******************************************************************
 
-
-namespace DXCharts.Controls.ChartElements.Interfaces
+namespace DXCharts.Controls.Classes
 {
     /// <summary>
-    /// The interface of axis element
+    /// Orientation of arrowhead
     /// </summary>
-    public interface IChartAxis : IChartLineElement
+    public enum ArrowheadOrientations
     {
-        /// <summary>
-        /// If set to true, axis <see cref="DataRatio"/> will be adjusted so that all the data are visible
-        /// </summary>
-        bool AdjustDataRatio { get; set; }
-
-        /// <summary>
-        /// Method returning chart coordinate basing on data
-        /// </summary>
-        /// <param name="coordinate">data coordinate</param>
-        /// <returns>chart coordinate</returns>
-        float GetChartCoordinate(double coordinate);
+        Horizontal = 0,
+        Vertical = 1
     }
 }

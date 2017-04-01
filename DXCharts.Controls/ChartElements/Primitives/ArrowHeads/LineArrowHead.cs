@@ -17,22 +17,42 @@ namespace DXCharts.Controls.ChartElements.Primitives
     using Microsoft.Graphics.Canvas;
     using Microsoft.Graphics.Canvas.Geometry;
     using System.Numerics;
+    using Windows.Foundation;
     using Windows.UI;
 
-    public class LineArrowHead : ArrowHeadBase
+    public class LineArrowhead : ArrowheadBase
     {
         /// <summary>
         /// Thickness of arrow's lines
         /// </summary>
         public double Thickness { get; set; }
 
-        public LineArrowHead()
+        private ArrowheadOrientations orientation;
+        /// <summary>
+        /// Orientation of arrowhead - basing on this angle is set
+        /// </summary>
+        public ArrowheadOrientations Orientation
         {
-            this.Angle = 0;
+            get { return this.orientation; }
+            set
+            {
+                this.orientation = value;
+                this.Angle = value == ArrowheadOrientations.Horizontal ? 0 : 90;
+                if (IsInverted)
+                {
+                    this.Angle += 180;
+                }
+            }
+        }
+
+        public LineArrowhead()
+        {
+            this.IsInverted = false;
+            this.Orientation = ArrowheadOrientations.Horizontal;
             this.Color = Colors.Black;
             this.Position = new ChartPoint(0, 0);
             this.Thickness = 1.0d;
-            this.Size = new ElementSize(10, 10);
+            this.Size = new Size(10, 10);
         }
 
         public override void DrawOnCanvas(CanvasDrawingSession drawingSession)
@@ -42,10 +62,10 @@ namespace DXCharts.Controls.ChartElements.Primitives
             using (var pathBuilder = new CanvasPathBuilder(drawingSession))
             {
                 pathBuilder.BeginFigure(this.Position.X, this.Position.Y);
-                pathBuilder.AddLine(this.Position.X - this.Size.Width, this.Position.Y - this.Size.Height / 2);
+                pathBuilder.AddLine((float)(this.Position.X - this.Size.Width), (float)(this.Position.Y - this.Size.Height / 2));
                 pathBuilder.EndFigure(CanvasFigureLoop.Open);
                 pathBuilder.BeginFigure(this.Position.X, this.Position.Y);
-                pathBuilder.AddLine(this.Position.X - this.Size.Width, this.Position.Y + this.Size.Height / 2);
+                pathBuilder.AddLine((float)(this.Position.X - this.Size.Width), (float)(this.Position.Y + this.Size.Height / 2));
                 pathBuilder.EndFigure(CanvasFigureLoop.Open);
                 drawingSession.DrawGeometry(CanvasGeometry.CreatePath(pathBuilder), this.Color, (float)this.Thickness);
             }

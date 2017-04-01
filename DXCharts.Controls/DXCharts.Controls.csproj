@@ -107,10 +107,12 @@
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ChartElements\Enums\Arrowhead.cs" />
     <Compile Include="ChartElements\Enums\Axes.cs" />
+    <Compile Include="ChartElements\Interfaces\IInvertible.cs" />
     <Compile Include="ChartElements\Interfaces\IChartDataPresenter.cs" />
     <Compile Include="ChartElements\Interfaces\IChartAxis.cs" />
-    <Compile Include="ChartElements\Primitives\ArrowHeads\LineArrowHead.cs" />
+    <Compile Include="ChartElements\Primitives\ArrowHeads\LineArrowhead.cs" />
     <Compile Include="ChartElements\Primitives\Axes\AxisBase.cs" />
     <Compile Include="ChartElements\Primitives\Tick\TickBase.cs" />
     <Compile Include="ChartElements\Primitives\Axes\HorizontalStandardAxis.cs" />
@@ -122,7 +124,7 @@
     <Compile Include="ChartElements\Primitives\Lines\StandardLine.cs" />
     <Compile Include="ChartElements\Primitives\Points\StandardPoint.cs" />
     <Compile Include="ChartElements\Primitives\Tick\StandardTick.cs" />
-    <Compile Include="ChartElements\Primitives\ArrowHeads\ArrowHeadBase.cs" />
+    <Compile Include="ChartElements\Primitives\ArrowHeads\ArrowheadBase.cs" />
     <Compile Include="Charts\CartesianChart\CartesianChart.cs" />
     <Compile Include="Charts\ChartBase.cs" />
     <Compile Include="Classes\ChartPoint.cs" />
