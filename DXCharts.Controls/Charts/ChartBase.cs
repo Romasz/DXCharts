@@ -17,6 +17,7 @@ namespace DXCharts.Controls.Charts
     using Classes;
     using Microsoft.Graphics.Canvas.UI.Xaml;
     using System.Collections.ObjectModel;
+    using System.Diagnostics;
     using Windows.Foundation;
     using Windows.UI.Xaml;
     using Windows.UI.Xaml.Controls;
@@ -25,14 +26,14 @@ namespace DXCharts.Controls.Charts
     {
         protected CanvasControl rootCanvas = null;
 
-        public DataRange VisibleRange
+        public PointRange VisibleRange
         {
-            get { return (DataRange)GetValue(VisibleRangeProperty); }
+            get { return (PointRange)GetValue(VisibleRangeProperty); }
             set { SetValue(VisibleRangeProperty, value); }
         }
 
         public static readonly DependencyProperty VisibleRangeProperty =
-            DependencyProperty.Register(nameof(VisibleRange), typeof(DataRange), typeof(ChartBase), new PropertyMetadata(null, OnPropertyChangedStatic));
+            DependencyProperty.Register(nameof(VisibleRange), typeof(PointRange), typeof(ChartBase), new PropertyMetadata(null, OnPropertyChangedStatic));
 
         public IChartDataPresenter DataPresenter
         {
@@ -88,6 +89,11 @@ namespace DXCharts.Controls.Charts
             rootCanvas?.Invalidate();
         }
 
+        public void RedrawChart()
+        {
+            rootCanvas?.Invalidate();
+        }
+
         private void RootCanvas_CreateResources(CanvasControl sender, Microsoft.Graphics.Canvas.UI.CanvasCreateResourcesEventArgs args)
         {
             // not used for now
@@ -95,19 +101,18 @@ namespace DXCharts.Controls.Charts
 
         private void RootCanvas_Draw(CanvasControl sender, CanvasDrawEventArgs args)
         {
+            Debug.WriteLine($"Redrawing the canvas");
             // first update axes - important to have updated DataRatio and methods responsible for geting ChartPoints
             UpdateAxes(new Size(sender.ActualWidth, sender.ActualHeight));
 
-            // first draw points
-            if (DataPresenter != null)
-            {
-                DataPresenter.PresentData(args.DrawingSession);
-            }
-
-            // then axes
             foreach (var axis in AxesCollection)
             {
                 axis.DrawOnCanvas(args.DrawingSession);
+            }
+
+            if (DataPresenter != null)
+            {
+                DataPresenter.PresentData(args.DrawingSession);
             }
         }
     }

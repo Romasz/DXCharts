@@ -37,14 +37,14 @@ namespace DXCharts.Controls.Charts
         public static readonly DependencyProperty VerticalAxisProperty =
             DependencyProperty.Register(nameof(VerticalAxis), typeof(AxisBase), typeof(CartesianChart), new PropertyMetadata(null, OnPropertyChangedStatic));
 
-        public Point DataOrigin
+        public Point AxesOrigin
         {
-            get { return (Point)GetValue(DataOriginProperty); }
-            set { SetValue(DataOriginProperty, value); }
+            get { return (Point)GetValue(AxesOriginProperty); }
+            set { SetValue(AxesOriginProperty, value); }
         }
 
-        public static readonly DependencyProperty DataOriginProperty =
-            DependencyProperty.Register(nameof(DataOrigin), typeof(Point), typeof(CartesianChart), new PropertyMetadata(new Point(0, 0), OnPropertyChangedStatic));
+        public static readonly DependencyProperty AxesOriginProperty =
+            DependencyProperty.Register(nameof(AxesOrigin), typeof(Point), typeof(CartesianChart), new PropertyMetadata(new Point(0, 0), OnPropertyChangedStatic));
 
         public Thickness AxesMargin
         {
@@ -53,7 +53,7 @@ namespace DXCharts.Controls.Charts
         }
 
         public static readonly DependencyProperty AxesMarginProperty =
-            DependencyProperty.Register(nameof(AxesMargin), typeof(Thickness), typeof(CartesianChart), new PropertyMetadata(new Thickness(5, 5, 5, 5), OnPropertyChangedStatic));
+            DependencyProperty.Register(nameof(AxesMargin), typeof(Thickness), typeof(CartesianChart), new PropertyMetadata(new Thickness(20, 20, 20, 20), OnPropertyChangedStatic));
 
         private static void OnPropertyChangedStatic(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -65,33 +65,33 @@ namespace DXCharts.Controls.Charts
 
         public override void CreateAxes()
         {
-            if (HorizontalAxis != null)
-            {
-                HorizontalAxis.PrepareAxis(DataOrigin);
-                AxesCollection.Add(HorizontalAxis);
-            }
-
-            if (VerticalAxis != null)
-            {
-                VerticalAxis.PrepareAxis(new Point(DataOrigin.Y, DataOrigin.X));
-                AxesCollection.Add(VerticalAxis);
-            }
+            this.HorizontalAxis.PrepareAxis(this.AxesOrigin, this.AxesMargin.Left);
+            this.VerticalAxis.PrepareAxis(this.AxesOrigin, this.AxesMargin.Top);
+            this.AxesCollection.Add(this.HorizontalAxis);
+            this.AxesCollection.Add(this.VerticalAxis);
         }
 
         public override void UpdateAxes(Size windowSize)
         {
-            HorizontalAxis?.Update(windowSize, this.AxesMargin, this.VisibleRange);
-            VerticalAxis?.Update(windowSize, this.AxesMargin, this.VisibleRange);
+            this.HorizontalAxis?.Update(new Size(windowSize.Width - this.AxesMargin.Left - this.AxesMargin.Right, windowSize.Height - this.AxesMargin.Top - this.AxesMargin.Bottom), this.AxesMargin, this.VisibleRange);
+            this.VerticalAxis?.Update(new Size(windowSize.Width - this.AxesMargin.Left - this.AxesMargin.Right, windowSize.Height - this.AxesMargin.Top - this.AxesMargin.Bottom), this.AxesMargin, this.VisibleRange);
         }
 
 
         public override void PrepareDataPresenter()
         {
-            if (DataPresenter != null)
+            if (this.DataPresenter != null)
             {
-                DataPresenter.Convert = (point) => new ChartPoint(HorizontalAxis.GetChartCoordinate(point.X), VerticalAxis.GetChartCoordinate(point.Y));
-                DataPresenter.IsPointInRange = (point) => VisibleRange.InRange(point);
-                DataPresenter.CollectionChanged += (s,e) => OnPropertyChanged(this,null);
+                this.DataPresenter.Convert = (point) => new ChartPoint(this.HorizontalAxis.GetChartCoordinate(point.X), this.VerticalAxis.GetChartCoordinate(point.Y));
+                if (this.DataPresenter is LinePresenter)
+                {
+                    this.DataPresenter.IsPointInRange = (point) => this.VisibleRange.InHorizontalRange(point.X);
+                }
+                else
+                {
+                    this.DataPresenter.IsPointInRange = (point) => this.VisibleRange.InRange(point);
+                }
+                this.DataPresenter.CollectionChanged += (s, e) => this.OnPropertyChanged(this, null);
             }
         }
     }

@@ -18,7 +18,7 @@ namespace DXCharts.Controls.Classes
     /// <summary>
     /// Range of the data
     /// </summary>
-    public class DataRange
+    public struct PointRange
     {
         /// <summary>
         /// Minimum X and Y
@@ -39,7 +39,7 @@ namespace DXCharts.Controls.Classes
 
         public bool InRange(Point data) => InHorizontalRange(data.X) && InVerticalRange(data.Y);
 
-        public DataRange(double x1, double y1, double x2, double y2)
+        public PointRange(double x1, double y1, double x2, double y2)
         {
             if (double.IsInfinity(x1) || double.IsNaN(x1) || double.IsInfinity(y1) || double.IsNaN(y1) ||
                 double.IsInfinity(x2) || double.IsNaN(x2) || double.IsInfinity(y2) || double.IsNaN(y2))
@@ -53,6 +53,6 @@ namespace DXCharts.Controls.Classes
             this.Height = Math.Abs(this.Maximum.Y - this.Minimum.Y);
         }
 
-        public DataRange(Point firstPoint, Point secondPoint) : this(firstPoint.X, firstPoint.Y, secondPoint.X, secondPoint.Y) { }
+        public PointRange(Point firstPoint, Point secondPoint) : this(firstPoint.X, firstPoint.Y, secondPoint.X, secondPoint.Y) { }
     }
 }

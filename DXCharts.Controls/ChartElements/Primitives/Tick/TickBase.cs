@@ -18,13 +18,19 @@ namespace DXCharts.Controls.ChartElements.Primitives
     using Microsoft.Graphics.Canvas;
     using Microsoft.Graphics.Canvas.Text;
     using Windows.UI;
+    using Windows.Foundation;
 
     public abstract class TickBase : IChartPointElement
     {
+        protected double AngleInRadians { get; private set; }
         /// <summary>
-        /// Orientation of arrowhead in radians
+        /// Orientation in degrees
         /// </summary>
-        public double Angle { get; set; }
+        public double Angle
+        {
+            get { return AngleInRadians * Math.PI / 180; }
+            set { AngleInRadians = value / 180 * Math.PI; }
+        }
 
         /// <summary>
         /// Element's color
@@ -39,7 +45,7 @@ namespace DXCharts.Controls.ChartElements.Primitives
         /// <summary>
         /// Size of the element
         /// </summary>
-        public ElementSize Size { get; set; }
+        public Size Size { get; set; }
 
         /// <summary>
         /// Thickness of arrow's lines

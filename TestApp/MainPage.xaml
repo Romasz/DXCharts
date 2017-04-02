@@ -26,44 +26,64 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-        <charts:CartesianChart Grid.Column="0" Grid.Row="0" Padding="5" DataOrigin="5,0" VisibleRange="{x:Bind ChartRange, Mode=OneWay}"
-                               DataPresenter="{x:Bind DataPresenter, Mode=OneWay}">
+        <charts:CartesianChart x:Name="TheChart" Grid.Column="0" Padding="5" AxesOrigin="0,0" VisibleRange="{x:Bind ChartRange, Mode=OneWay}"
+                               DataPresenter="{x:Bind DataPresenter, Mode=OneWay}" PointerPressed="CartesianChart_PointerPressed" PointerMoved="CartesianChart_PointerMoved"
+                               PointerReleased="CartesianChart_PointerReleased" ManipulationMode="All" PointerWheelChanged="CartesianChart_PointerWheelChanged">
             <charts:CartesianChart.HorizontalAxis>
-                <chartsprim:StandardAxis Color="Green" TickIncrement="2">
+                <chartsprim:StandardAxis Color="Green" TickIncrement="1" Position="{x:Bind HorizontalAxisPosition, Mode=OneWay}" 
+                                         IsInverted="{x:Bind HorizontalInverted, Mode=OneWay}" IsTickLine="{x:Bind IsHorizontalLine, Mode=OneWay}">
                     <chartsprim:StandardAxis.ArrowHead>
-                        <chartsprim:LineArrowHead Color="Blue" Thickness="1"/>
+                        <chartsprim:LineArrowhead Color="Blue" Thickness="1"/>
                     </chartsprim:StandardAxis.ArrowHead>
                     <chartsprim:StandardAxis.Tick>
                         <chartsprim:StandardTick Color="Black" Thickness="1" Angle="0"/>
                     </chartsprim:StandardAxis.Tick>
+                    <chartsprim:StandardAxis.TickLine>
+                        <chartsprim:DashedLine Thickness="0.5" Color="Gray"/>
+                    </chartsprim:StandardAxis.TickLine>
                 </chartsprim:StandardAxis>
             </charts:CartesianChart.HorizontalAxis>
             <charts:CartesianChart.VerticalAxis>
-                <chartsprim:StandardAxis Color="Green" TickIncrement="2">
+                <chartsprim:StandardAxis Color="Green" TickIncrement="1" Position="{x:Bind VerticalAxisPosition, Mode=OneWay}" 
+                                         IsInverted="{x:Bind VerticalInverted, Mode=OneWay}" IsTickLine="{x:Bind IsVerticalLine, Mode=OneWay}">
                     <chartsprim:StandardAxis.ArrowHead>
-                        <chartsprim:LineArrowHead Color="Blue" Thickness="1"/>
+                        <chartsprim:LineArrowhead Color="Blue" Thickness="1" Orientation="Vertical"/>
                     </chartsprim:StandardAxis.ArrowHead>
                     <chartsprim:StandardAxis.Tick>
-                        <chartsprim:StandardTick Color="Black" Thickness="1" Angle="1.57"/>
+                        <chartsprim:StandardTick Color="Black" Thickness="1" Angle="90"/>
                     </chartsprim:StandardAxis.Tick>
+                    <chartsprim:StandardAxis.TickLine>
+                        <chartsprim:DashedLine Thickness="0.5" Color="OrangeRed"/>
+                    </chartsprim:StandardAxis.TickLine>
                 </chartsprim:StandardAxis>
             </charts:CartesianChart.VerticalAxis>
         </charts:CartesianChart>
-        <Slider HorizontalAlignment="Stretch" Grid.Row="1" Grid.Column="0" Minimum="5" Maximum="35" Value="{x:Bind HorizontalRange, Mode=TwoWay}" TickFrequency="5"
-                Orientation="Horizontal"/>
-        <Slider VerticalAlignment="Stretch" Grid.Row="0" Grid.Column="1" Minimum="2" Maximum="22" Value="{x:Bind VerticalRange, Mode=TwoWay}" TickFrequency="5"
-                Orientation="Vertical"/>
-        <StackPanel Orientation="Vertical" Grid.Column="2" Grid.Row="0">
-            <Button Content="Add 10000 points" Margin="10" Click="Button_Click"/>
+        <StackPanel Orientation="Vertical" Grid.Column="1">
+            <RelativePanel>
+                <TextBlock x:Name="AddTBl" Text="Add points to chart:" RelativePanel.AlignLeftWithPanel="True"/>
+                <Button x:Name="SmallBtn" RelativePanel.Below="AddTBl" RelativePanel.AlignLeftWithPanel="True" Content="10" Margin="10" Click="SmallButton_Click"/>
+                <Button RelativePanel.Below="AddTBl" RelativePanel.RightOf="SmallBtn" Content="10000" Margin="10" Click="BigButton_Click"/>
+            </RelativePanel>
             <TextBlock Text="{x:Bind DataPoints.Count, Mode=OneWay}" HorizontalAlignment="Center" FontSize="18"/>
-            <Button Content="Present points" Margin="10" Click="PointButton_Click"/>
-            <Button Content="Present lines" Margin="10" Click="LineButton_Click"/>
+            <ComboBox Header="Present:" Margin="10" SelectionChanged="PointStyle_SelectionChanged" SelectedIndex="0">
+                <x:String>points</x:String>
+                <x:String>lines</x:String>
+            </ComboBox>
+            <ComboBox Header="Horizontal axis:" Margin="10" SelectionChanged="HorizontalPlacement_SelectionChanged" SelectedIndex="0">
+                <x:String>bottom</x:String>
+                <x:String>top</x:String>
+                <x:String>free</x:String>
+            </ComboBox>
+            <ComboBox Header="Vertical axis:" Margin="10" SelectionChanged="VerticalPlacement_SelectionChanged" SelectedIndex="0">
+                <x:String>left</x:String>
+                <x:String>right</x:String>
+                <x:String>free</x:String>
+            </ComboBox>
+            <CheckBox Margin="10" Content="vertical lines" IsChecked="{Binding IsHorizontalLine, Mode=TwoWay}"/>
+            <CheckBox Margin="10" Content="horizontal lines" IsChecked="{Binding IsVerticalLine, Mode=TwoWay}"/>
+            <ToggleButton Margin="10" Content="invert horizontal axis" IsChecked="{Binding HorizontalInverted, Mode=TwoWay}"/>
+            <ToggleButton Margin="10" Content="invert vertical axis" IsChecked="{Binding VerticalInverted, Mode=TwoWay}"/>
         </StackPanel>
     </Grid>
 </Page>

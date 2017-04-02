@@ -48,8 +48,7 @@ namespace DXCharts.Controls.ChartElements.Primitives
         public IEnumerable<Point> Data
         {
             get { return (IEnumerable<Point>)GetValue(DataProperty); }
-            set {
-                SetValue(DataProperty, value); }
+            set { SetValue(DataProperty, value); }
         }
 
         public static readonly DependencyProperty DataProperty =

@@ -21,8 +21,9 @@ namespace DXCharts.Controls.ChartElements.Primitives
     using Windows.UI;
     using Windows.Foundation;
     using Windows.UI.Xaml;
+    using System.Collections.Generic;
 
-    public abstract class AxisBase : IChartAxis, IInvertible
+    public abstract class AxisBase : DependencyObject, IChartAxis, IInvertible
     {
         /// <summary>
         /// Color of the axis
@@ -37,7 +38,14 @@ namespace DXCharts.Controls.ChartElements.Primitives
         /// <summary>
         /// Value indicating if element should be inverted
         /// </summary>
-        public bool IsInverted { get; set; }
+        public bool IsInverted
+        {
+            get { return (bool)GetValue(IsInvertedProperty); }
+            set { SetValue(IsInvertedProperty, value); }
+        }
+
+        public static readonly DependencyProperty IsInvertedProperty =
+            DependencyProperty.Register(nameof(IsInverted), typeof(bool), typeof(AxisBase), new PropertyMetadata(false));
 
         /// <summary>
         /// Axis start point
@@ -69,6 +77,29 @@ namespace DXCharts.Controls.ChartElements.Primitives
         /// </summary>
         public double TickIncrement { get; set; }
 
+
+        /// <summary>
+        /// Tick lines minimum and maximum window's point
+        /// </summary>
+        protected DoubleRange TickLineRange { get; set; }
+
+        /// <summary>
+        /// If additional lines should be shown
+        /// </summary>
+        public bool IsTickLine
+        {
+            get { return (bool)GetValue(IsTickLineProperty); }
+            set { SetValue(IsTickLineProperty, value); }
+        }
+
+        public static readonly DependencyProperty IsTickLineProperty =
+            DependencyProperty.Register(nameof(IsTickLine), typeof(bool), typeof(AxisBase), new PropertyMetadata(false));
+
+        /// <summary>
+        /// Additional lines style
+        /// </summary>
+        public IChartLineElement TickLine { get; set; }
+
         /// <summary>
         /// Pixels per data
         /// </summary>
@@ -90,9 +121,9 @@ namespace DXCharts.Controls.ChartElements.Primitives
         protected bool isVisible;
 
         /// <summary>
-        /// Visible range on data from width to height
+        /// Visible range of data
         /// </summary>
-        protected Size visibleRange;
+        protected DoubleRange dataRange;
 
         public AxisBase()
         {
@@ -108,12 +139,13 @@ namespace DXCharts.Controls.ChartElements.Primitives
             this.StrokeStyle = default(CanvasStrokeStyle);
             this.AdjustDataRatio = false;
             this.isVisible = true;
-            this.visibleRange = new Size(1d, 1d);
+            this.dataRange = new DoubleRange(1d, 1d);
         }
 
+        public abstract List<Tuple<float, double>> CalculateTicks();
         public abstract void DrawOnCanvas(CanvasDrawingSession drawingSession);
         public abstract float GetChartCoordinate(double coordinate);
-        public abstract void PrepareAxis(Point DataOrigin);
-        public abstract void Update(Size windowSize, Thickness axesMargin, DataRange visibleRange);
+        public abstract void PrepareAxis(Point DataOrigin, double margin);
+        public abstract void Update(Size windowSize, Thickness axesMargin, PointRange visibleRange);
     }
 }

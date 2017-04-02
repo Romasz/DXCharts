@@ -13,24 +13,16 @@
 namespace DXCharts.Controls.Classes
 {
     /// <summary>
-    /// Available horizontal axis positions
+    /// Available axis positions
     /// </summary>
-    public enum HorizontalAxisPositions
+    public enum AxisPositions
     {
-        Bottom = 0,
-        Middle = 1,
-        Top = 2,
-        Free = 3
-    }
-
-    /// <summary>
-    /// Available horizontal axis positions
-    /// </summary>
-    public enum VerticalAxisPositions
-    {
-        Left = 0,
-        Middle = 1,
-        Right = 2,
-        Free = 3
+        None = 0,
+        HorizontalBottom = 1,
+        HorizontalTop = 2,
+        HorizontalFree = 3,
+        VerticalLeft = 4,
+        VerticalRight = 5,
+        VerticalFree = 6
     }
 }

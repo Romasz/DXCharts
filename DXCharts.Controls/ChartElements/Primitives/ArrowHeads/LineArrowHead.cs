@@ -16,6 +16,7 @@ namespace DXCharts.Controls.ChartElements.Primitives
     using Interfaces;
     using Microsoft.Graphics.Canvas;
     using Microsoft.Graphics.Canvas.Geometry;
+    using System;
     using System.Numerics;
     using Windows.Foundation;
     using Windows.UI;
@@ -37,11 +38,7 @@ namespace DXCharts.Controls.ChartElements.Primitives
             set
             {
                 this.orientation = value;
-                this.Angle = value == ArrowheadOrientations.Horizontal ? 0 : 90;
-                if (IsInverted)
-                {
-                    this.Angle += 180;
-                }
+                this.Angle = value == ArrowheadOrientations.Horizontal ? 0 : -90;
             }
         }
 
@@ -58,7 +55,7 @@ namespace DXCharts.Controls.ChartElements.Primitives
         public override void DrawOnCanvas(CanvasDrawingSession drawingSession)
         {
             var previousTransform = drawingSession.Transform;
-            drawingSession.Transform = Matrix3x2.CreateRotation((float)this.Angle, new Vector2(this.Position.X, this.Position.Y));
+            drawingSession.Transform = Matrix3x2.CreateRotation((float)(this.AngleInRadians + (this.IsInverted ? Math.PI : 0)), new Vector2(this.Position.X, this.Position.Y));
             using (var pathBuilder = new CanvasPathBuilder(drawingSession))
             {
                 pathBuilder.BeginFigure(this.Position.X, this.Position.Y);

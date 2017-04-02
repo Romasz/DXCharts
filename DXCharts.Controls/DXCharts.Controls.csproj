@@ -114,8 +114,9 @@
     <Compile Include="ChartElements\Interfaces\IChartAxis.cs" />
     <Compile Include="ChartElements\Primitives\ArrowHeads\LineArrowhead.cs" />
     <Compile Include="ChartElements\Primitives\Axes\AxisBase.cs" />
+    <Compile Include="ChartElements\Primitives\Lines\DashedLine.cs" />
     <Compile Include="ChartElements\Primitives\Tick\TickBase.cs" />
-    <Compile Include="ChartElements\Primitives\Axes\HorizontalStandardAxis.cs" />
+    <Compile Include="ChartElements\Primitives\Axes\StandardAxis.cs" />
     <Compile Include="ChartElements\Interfaces\IChartLineElement.cs" />
     <Compile Include="ChartElements\Interfaces\IChartPointElement.cs" />
     <Compile Include="ChartElements\Interfaces\IChartElement.cs" />
@@ -128,7 +129,8 @@
     <Compile Include="Charts\CartesianChart\CartesianChart.cs" />
     <Compile Include="Charts\ChartBase.cs" />
     <Compile Include="Classes\ChartPoint.cs" />
-    <Compile Include="Classes\DataRange.cs" />
+    <Compile Include="Classes\DoubleRange.cs" />
+    <Compile Include="Classes\PointRange.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\DXCharts.Controls.rd.xml" />
   </ItemGroup>
