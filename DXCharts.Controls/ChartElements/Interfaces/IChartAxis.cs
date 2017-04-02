@@ -10,6 +10,7 @@
 // THE CODE OR THE USE OR OTHER DEALINGS IN THE CODE.
 // ******************************************************************
 
+
 namespace DXCharts.Controls.ChartElements.Interfaces
 {
     /// <summary>
@@ -18,19 +19,15 @@ namespace DXCharts.Controls.ChartElements.Interfaces
     public interface IChartAxis : IChartLineElement
     {
         /// <summary>
-        /// Pixels per data
+        /// If set to true, axis <see cref="DataRatio"/> will be adjusted so that all the data are visible
         /// </summary>
-        double DataRatio { get; set; }
+        bool AdjustDataRatio { get; set; }
 
         /// <summary>
-        /// Orgin of data
+        /// Method returning chart coordinate basing on data
         /// </summary>
-        double DataOrigin { get; set; }
-
-        /// <summary>
-        /// Orgin of axis
-        /// </summary>
-        float OriginPoint { get; set; }
-
+        /// <param name="coordinate">data coordinate</param>
+        /// <returns>chart coordinate</returns>
+        float GetChartCoordinate(double coordinate);
     }
 }

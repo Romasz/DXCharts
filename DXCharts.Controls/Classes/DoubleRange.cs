@@ -10,29 +10,43 @@
 // THE CODE OR THE USE OR OTHER DEALINGS IN THE CODE.
 // ******************************************************************
 
-namespace DXCharts.Controls.ChartElements.Interfaces
+namespace DXCharts.Controls.Classes
 {
-    using Classes;
+    using System;
     using Windows.Foundation;
 
     /// <summary>
-    /// The point element that can be drawn on CanvasControl
+    /// Range of the data given with double
     /// </summary>
-    public interface IChartPointElement : IChartElement
+    public struct DoubleRange
     {
         /// <summary>
-        /// Orientation of element in radians
+        /// Minimum value
         /// </summary>
-        double Angle { get; set; }
+        public readonly double Minimum;
 
         /// <summary>
-        /// Position at which element will be drawn/>
+        /// Maximum value
         /// </summary>
-        ChartPoint Position { get; set; }
+        public readonly double Maximum;
 
-        /// <summary>
-        /// Element's size
-        /// </summary>
-        Size Size { get; set; }
+        public readonly double Width;
+
+        public bool InRange(double data) => data >= this.Minimum && data <= this.Maximum;
+
+        public DoubleRange(double value1, double value2)
+        {
+            if (value1 < value2)
+            {
+                this.Minimum = value1;
+                this.Maximum = value2;
+            }
+            else
+            {
+                this.Minimum = value2;
+                this.Maximum = value1;
+            }
+            this.Width = Math.Abs(this.Maximum - this.Minimum);
+        }
     }
 }

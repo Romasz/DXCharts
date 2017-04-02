@@ -13,29 +13,16 @@
 namespace DXCharts.Controls.Classes
 {
     /// <summary>
-    /// The struct defining size of the element
+    /// Available axis positions
     /// </summary>
-    public struct ElementSize
+    public enum AxisPositions
     {
-        /// <summary>
-        /// Element's width
-        /// </summary>
-        public float Width { get; set; }
-
-        /// <summary>
-        /// Element's height
-        /// </summary>
-        public float Height { get; set; }
-
-        /// <summary>
-        /// Create new size width x height
-        /// </summary>
-        /// <param name="width">value set as width</param>
-        /// <param name="height">value set as height</param>
-        public ElementSize(float width, float height)
-        {
-            this.Width = width;
-            this.Height = height;
-        }
+        None = 0,
+        HorizontalBottom = 1,
+        HorizontalTop = 2,
+        HorizontalFree = 3,
+        VerticalLeft = 4,
+        VerticalRight = 5,
+        VerticalFree = 6
     }
 }

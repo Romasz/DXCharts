@@ -12,109 +12,87 @@
 
 namespace DXCharts.Controls.Charts
 {
-    using ChartElements.Interfaces;
+    using ChartElements.Primitives;
     using Classes;
     using Windows.Foundation;
     using Windows.UI.Xaml;
 
     public sealed class CartesianChart : ChartBase
     {
-        public IChartAxis HorizontalAxis
+        public AxisBase HorizontalAxis
         {
-            get { return (IChartAxis)GetValue(HorizontalAxisProperty); }
+            get { return (AxisBase)GetValue(HorizontalAxisProperty); }
             set { SetValue(HorizontalAxisProperty, value); }
         }
 
         public static readonly DependencyProperty HorizontalAxisProperty =
-            DependencyProperty.Register(nameof(HorizontalAxis), typeof(IChartAxis), typeof(CartesianChart), new PropertyMetadata(null, OnPropertyChangedStatic));
+            DependencyProperty.Register(nameof(HorizontalAxis), typeof(AxisBase), typeof(CartesianChart), new PropertyMetadata(null, OnPropertyChangedStatic));
 
-        public IChartAxis VerticalAxis
+        public AxisBase VerticalAxis
         {
-            get { return (IChartAxis)GetValue(VerticalAxisProperty); }
+            get { return (AxisBase)GetValue(VerticalAxisProperty); }
             set { SetValue(VerticalAxisProperty, value); }
         }
 
         public static readonly DependencyProperty VerticalAxisProperty =
-            DependencyProperty.Register(nameof(VerticalAxis), typeof(IChartAxis), typeof(CartesianChart), new PropertyMetadata(null, OnPropertyChangedStatic));
+            DependencyProperty.Register(nameof(VerticalAxis), typeof(AxisBase), typeof(CartesianChart), new PropertyMetadata(null, OnPropertyChangedStatic));
 
+        public Point AxesOrigin
+        {
+            get { return (Point)GetValue(AxesOriginProperty); }
+            set { SetValue(AxesOriginProperty, value); }
+        }
+
+        public static readonly DependencyProperty AxesOriginProperty =
+            DependencyProperty.Register(nameof(AxesOrigin), typeof(Point), typeof(CartesianChart), new PropertyMetadata(new Point(0, 0), OnPropertyChangedStatic));
+
+        public Thickness AxesMargin
+        {
+            get { return (Thickness)GetValue(AxesMarginProperty); }
+            set { SetValue(AxesMarginProperty, value); }
+        }
+
+        public static readonly DependencyProperty AxesMarginProperty =
+            DependencyProperty.Register(nameof(AxesMargin), typeof(Thickness), typeof(CartesianChart), new PropertyMetadata(new Thickness(20, 20, 20, 20), OnPropertyChangedStatic));
 
         private static void OnPropertyChangedStatic(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             (d as CartesianChart)?.OnPropertyChanged(d, e.Property);
         }
 
-        public Point DataOrigin
-        {
-            get { return (Point)GetValue(DataOriginProperty); }
-            set { SetValue(DataOriginProperty, value); }
-        }
-
-        public static readonly DependencyProperty DataOriginProperty =
-            DependencyProperty.Register(nameof(DataOrigin), typeof(Point), typeof(CartesianChart), new PropertyMetadata(new Point(0, 0), OnPropertyChangedStatic));
-
-
         public CartesianChart() : base() { }
 
 
         public override void CreateAxes()
         {
-            AxesCollection.Add(HorizontalAxis);
-            AxesCollection.Add(VerticalAxis);
-            HorizontalAxis.DataOrigin = DataOrigin.X;
-            VerticalAxis.DataOrigin = DataOrigin.Y;
+            this.HorizontalAxis.PrepareAxis(this.AxesOrigin, this.AxesMargin.Left);
+            this.VerticalAxis.PrepareAxis(this.AxesOrigin, this.AxesMargin.Top);
+            this.AxesCollection.Add(this.HorizontalAxis);
+            this.AxesCollection.Add(this.VerticalAxis);
         }
+
+        public override void UpdateAxes(Size windowSize)
+        {
+            this.HorizontalAxis?.Update(new Size(windowSize.Width - this.AxesMargin.Left - this.AxesMargin.Right, windowSize.Height - this.AxesMargin.Top - this.AxesMargin.Bottom), this.AxesMargin, this.VisibleRange);
+            this.VerticalAxis?.Update(new Size(windowSize.Width - this.AxesMargin.Left - this.AxesMargin.Right, windowSize.Height - this.AxesMargin.Top - this.AxesMargin.Bottom), this.AxesMargin, this.VisibleRange);
+        }
+
 
         public override void PrepareDataPresenter()
         {
-            if (DataPresenter != null)
+            if (this.DataPresenter != null)
             {
-                DataPresenter.Convert = Convert;
-                DataPresenter.IsPointInRange = IsInRange;
-                DataPresenter.CollectionChanged += DataPresenter_CollectionChanged;
+                this.DataPresenter.Convert = (point) => new ChartPoint(this.HorizontalAxis.GetChartCoordinate(point.X), this.VerticalAxis.GetChartCoordinate(point.Y));
+                if (this.DataPresenter is LinePresenter)
+                {
+                    this.DataPresenter.IsPointInRange = (point) => this.VisibleRange.InHorizontalRange(point.X);
+                }
+                else
+                {
+                    this.DataPresenter.IsPointInRange = (point) => this.VisibleRange.InRange(point);
+                }
+                this.DataPresenter.CollectionChanged += (s, e) => this.OnPropertyChanged(this, null);
             }
         }
-
-        private void DataPresenter_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-        {
-            // redraw the chart
-            OnPropertyChanged(this, null);
-        }
-
-        private bool IsInRange(Point point) => VisibleRange.InRange(point);
-
-        private ChartPoint Convert(Point point)
-        {
-            return new ChartPoint(GetXCoordinate(point.X), GetYCoordinate(point.Y));
-        }
-
-        private float GetXCoordinate(double data)
-        {
-            return (float)(rootCanvas.ActualWidth * (data - VisibleRange.Minimum.X) / VisibleRange.Width);
-        }
-
-        private float GetYCoordinate(double data)
-        {
-            return (float)(rootCanvas.ActualHeight * (VisibleRange.Maximum.Y - data) / VisibleRange.Height);
-        }
-
-        public override void UpdateAxes(ElementSize newSize)
-        {
-            if (HorizontalAxis != null && VisibleRange.InVerticalRange(DataOrigin.Y))
-            {
-                HorizontalAxis.StartPoint = new ChartPoint(0.0f, GetYCoordinate(DataOrigin.Y));
-                HorizontalAxis.EndPoint = new ChartPoint(newSize.Width, GetYCoordinate(DataOrigin.Y));
-                HorizontalAxis.DataRatio = newSize.Width / VisibleRange.Width;
-                HorizontalAxis.OriginPoint = GetXCoordinate(DataOrigin.X);
-            }
-
-            if (VerticalAxis != null && VisibleRange.InHorizontalRange(DataOrigin.X))
-            {
-                VerticalAxis.EndPoint = new ChartPoint(GetXCoordinate(DataOrigin.X), 0.0f);
-                VerticalAxis.StartPoint = new ChartPoint(GetXCoordinate(DataOrigin.X), newSize.Height);
-                VerticalAxis.DataRatio = newSize.Height / VisibleRange.Height;
-                VerticalAxis.OriginPoint = GetYCoordinate(DataOrigin.Y);
-            }
-        }
-
     }
 }

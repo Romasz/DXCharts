@@ -107,9 +107,15 @@
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ChartElements\Enums\Arrowhead.cs" />
+    <Compile Include="ChartElements\Enums\Axes.cs" />
+    <Compile Include="ChartElements\Interfaces\IInvertible.cs" />
     <Compile Include="ChartElements\Interfaces\IChartDataPresenter.cs" />
     <Compile Include="ChartElements\Interfaces\IChartAxis.cs" />
-    <Compile Include="ChartElements\Primitives\ArrowHeads\LineArrowHead.cs" />
+    <Compile Include="ChartElements\Primitives\ArrowHeads\LineArrowhead.cs" />
+    <Compile Include="ChartElements\Primitives\Axes\AxisBase.cs" />
+    <Compile Include="ChartElements\Primitives\Lines\DashedLine.cs" />
+    <Compile Include="ChartElements\Primitives\Tick\TickBase.cs" />
     <Compile Include="ChartElements\Primitives\Axes\StandardAxis.cs" />
     <Compile Include="ChartElements\Interfaces\IChartLineElement.cs" />
     <Compile Include="ChartElements\Interfaces\IChartPointElement.cs" />
@@ -119,19 +125,16 @@
     <Compile Include="ChartElements\Primitives\Lines\StandardLine.cs" />
     <Compile Include="ChartElements\Primitives\Points\StandardPoint.cs" />
     <Compile Include="ChartElements\Primitives\Tick\StandardTick.cs" />
-    <Compile Include="ChartElements\Primitives\Tick\TickBase.cs" />
+    <Compile Include="ChartElements\Primitives\ArrowHeads\ArrowheadBase.cs" />
     <Compile Include="Charts\CartesianChart\CartesianChart.cs" />
     <Compile Include="Charts\ChartBase.cs" />
-    <Compile Include="Classes\DataPoint.cs" />
-    <Compile Include="Classes\ElementSize.cs" />
     <Compile Include="Classes\ChartPoint.cs" />
-    <Compile Include="Classes\DataRange.cs" />
+    <Compile Include="Classes\DoubleRange.cs" />
+    <Compile Include="Classes\PointRange.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\DXCharts.Controls.rd.xml" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="ChartElements\Enums\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Page Include="Charts\ChartBase.xaml">
       <Generator>MSBuild:Compile</Generator>

@@ -17,6 +17,8 @@ namespace DXCharts.Controls.Charts
     using Classes;
     using Microsoft.Graphics.Canvas.UI.Xaml;
     using System.Collections.ObjectModel;
+    using System.Diagnostics;
+    using Windows.Foundation;
     using Windows.UI.Xaml;
     using Windows.UI.Xaml.Controls;
 
@@ -24,14 +26,14 @@ namespace DXCharts.Controls.Charts
     {
         protected CanvasControl rootCanvas = null;
 
-        public DataRange VisibleRange
+        public PointRange VisibleRange
         {
-            get { return (DataRange)GetValue(VisibleRangeProperty); }
+            get { return (PointRange)GetValue(VisibleRangeProperty); }
             set { SetValue(VisibleRangeProperty, value); }
         }
 
         public static readonly DependencyProperty VisibleRangeProperty =
-            DependencyProperty.Register(nameof(VisibleRange), typeof(DataRange), typeof(ChartBase), new PropertyMetadata(null, OnPropertyChangedStatic));
+            DependencyProperty.Register(nameof(VisibleRange), typeof(PointRange), typeof(ChartBase), new PropertyMetadata(null, OnPropertyChangedStatic));
 
         public IChartDataPresenter DataPresenter
         {
@@ -51,8 +53,8 @@ namespace DXCharts.Controls.Charts
         public Collection<IChartAxis> AxesCollection;
 
         public abstract void CreateAxes();
+        public abstract void UpdateAxes(Size windowSize);
         public abstract void PrepareDataPresenter();
-        public abstract void UpdateAxes(ElementSize newSize);
 
         private static void OnPropertyChangedStatic(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -76,13 +78,18 @@ namespace DXCharts.Controls.Charts
 
         protected override void OnApplyTemplate()
         {
+            CreateAxes();
             rootCanvas = GetTemplateChild("RootCanvas") as CanvasControl;
             rootCanvas.CreateResources += RootCanvas_CreateResources;
             rootCanvas.Draw += RootCanvas_Draw;
-            CreateAxes();
         }
 
         protected void OnPropertyChanged(DependencyObject d, DependencyProperty prop)
+        {
+            rootCanvas?.Invalidate();
+        }
+
+        public void RedrawChart()
         {
             rootCanvas?.Invalidate();
         }
@@ -94,17 +101,18 @@ namespace DXCharts.Controls.Charts
 
         private void RootCanvas_Draw(CanvasControl sender, CanvasDrawEventArgs args)
         {
-            // first draw points
-            if (DataPresenter != null)
-            {
-                DataPresenter.PresentData(args.DrawingSession);
-            }
+            Debug.WriteLine($"Redrawing the canvas");
+            // first update axes - important to have updated DataRatio and methods responsible for geting ChartPoints
+            UpdateAxes(new Size(sender.ActualWidth, sender.ActualHeight));
 
-            // then axes
-            UpdateAxes(new ElementSize((float)sender.ActualWidth, (float)sender.ActualHeight));
             foreach (var axis in AxesCollection)
             {
                 axis.DrawOnCanvas(args.DrawingSession);
+            }
+
+            if (DataPresenter != null)
+            {
+                DataPresenter.PresentData(args.DrawingSession);
             }
         }
     }

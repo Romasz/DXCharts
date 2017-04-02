@@ -13,24 +13,11 @@
 namespace DXCharts.Controls.Classes
 {
     /// <summary>
-    /// The double precision point
+    /// Orientation of arrowhead
     /// </summary>
-    public struct DataPoint
+    public enum ArrowheadOrientations
     {
-        /// <summary>
-        /// X coordinate
-        /// </summary>
-        public double X { get; set; }
-
-        /// <summary>
-        /// Y coordinate
-        /// </summary>
-        public double Y { get; set; }
-
-        public DataPoint(double x, double y)
-        {
-            this.X = x;
-            this.Y = y;
-        }
+        Horizontal = 0,
+        Vertical = 1
     }
 }

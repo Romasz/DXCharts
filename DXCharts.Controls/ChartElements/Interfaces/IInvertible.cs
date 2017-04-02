@@ -10,29 +10,17 @@
 // THE CODE OR THE USE OR OTHER DEALINGS IN THE CODE.
 // ******************************************************************
 
+
 namespace DXCharts.Controls.ChartElements.Interfaces
 {
-    using Classes;
-    using Windows.Foundation;
-
     /// <summary>
-    /// The point element that can be drawn on CanvasControl
+    /// The interface of element that can be inverted
     /// </summary>
-    public interface IChartPointElement : IChartElement
+    public interface IInvertible 
     {
         /// <summary>
-        /// Orientation of element in radians
+        /// Value indicating if element should be inverted
         /// </summary>
-        double Angle { get; set; }
-
-        /// <summary>
-        /// Position at which element will be drawn/>
-        /// </summary>
-        ChartPoint Position { get; set; }
-
-        /// <summary>
-        /// Element's size
-        /// </summary>
-        Size Size { get; set; }
+        bool IsInverted { get; set; }
     }
 }

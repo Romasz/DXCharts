@@ -16,28 +16,33 @@ namespace DXCharts.Controls.ChartElements.Primitives
     using Classes;
     using Microsoft.Graphics.Canvas;
     using Windows.UI;
-    using Windows.Foundation;
+    using Microsoft.Graphics.Canvas.Geometry;
+    using System;
 
-    public class StandardPoint : IChartPointElement
+    public class DashedLine : IChartLineElement
     {
         public Color Color { get; set; }
 
         public double Angle { get; set; }
 
-        public ChartPoint Position { get; set; }
+        public ChartPoint StartPoint { get; set; }
 
-        public Size Size { get; set; }
+        public ChartPoint EndPoint { get; set; }
 
-        public StandardPoint()
+        public double Thickness { get; set; }
+
+        public CanvasStrokeStyle StrokeStyle { get; set; }
+
+        public DashedLine()
         {
-            this.Size = new Size(1, 1);
             this.Angle = 0.0d;
             this.Color = Colors.Gray;
+            this.StrokeStyle = new CanvasStrokeStyle() { DashStyle = CanvasDashStyle.Dash };
         }
 
         public void DrawOnCanvas(CanvasDrawingSession drawingSession)
         {
-            drawingSession.DrawCircle(this.Position.X, this.Position.Y, (float)this.Size.Width, this.Color);
+            drawingSession.DrawLine(this.StartPoint.X, this.StartPoint.Y, this.EndPoint.X, this.EndPoint.Y, this.Color,(float)this.Thickness, this.StrokeStyle);
         }
     }
 }

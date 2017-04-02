@@ -16,53 +16,53 @@ namespace DXCharts.Controls.ChartElements.Primitives
     using Interfaces;
     using Microsoft.Graphics.Canvas;
     using Microsoft.Graphics.Canvas.Geometry;
+    using System;
     using System.Numerics;
+    using Windows.Foundation;
     using Windows.UI;
 
-    public class LineArrowHead : IChartPointElement
+    public class LineArrowhead : ArrowheadBase
     {
-        /// <summary>
-        /// Orientation of arrowhead in radians
-        /// </summary>
-        public double Angle { get; set; }
-
-        /// <summary>
-        /// Element's color
-        /// </summary>
-        public Color Color { get; set; }
-
-        /// <summary>
-        /// Position at which element will be drawn
-        /// </summary>
-        public ChartPoint Position { get; set; }
-
-        /// <summary>
-        /// Size of the element
-        /// </summary>
-        public ElementSize Size { get; set; }
-
         /// <summary>
         /// Thickness of arrow's lines
         /// </summary>
         public double Thickness { get; set; }
 
-        public LineArrowHead()
+        private ArrowheadOrientations orientation;
+        /// <summary>
+        /// Orientation of arrowhead - basing on this angle is set
+        /// </summary>
+        public ArrowheadOrientations Orientation
         {
-            this.Size = new ElementSize(10, 10); // for test
+            get { return this.orientation; }
+            set
+            {
+                this.orientation = value;
+                this.Angle = value == ArrowheadOrientations.Horizontal ? 0 : -90;
+            }
         }
 
-        public void DrawOnCanvas(CanvasDrawingSession drawingSession)
+        public LineArrowhead()
+        {
+            this.IsInverted = false;
+            this.Orientation = ArrowheadOrientations.Horizontal;
+            this.Color = Colors.Black;
+            this.Position = new ChartPoint(0, 0);
+            this.Thickness = 1.0d;
+            this.Size = new Size(10, 10);
+        }
+
+        public override void DrawOnCanvas(CanvasDrawingSession drawingSession)
         {
             var previousTransform = drawingSession.Transform;
-
-            drawingSession.Transform = Matrix3x2.CreateRotation((float)this.Angle, new Vector2(this.Position.X, this.Position.Y));
+            drawingSession.Transform = Matrix3x2.CreateRotation((float)(this.AngleInRadians + (this.IsInverted ? Math.PI : 0)), new Vector2(this.Position.X, this.Position.Y));
             using (var pathBuilder = new CanvasPathBuilder(drawingSession))
             {
                 pathBuilder.BeginFigure(this.Position.X, this.Position.Y);
-                pathBuilder.AddLine(this.Position.X - this.Size.Width, this.Position.Y - this.Size.Height / 2);
+                pathBuilder.AddLine((float)(this.Position.X - this.Size.Width), (float)(this.Position.Y - this.Size.Height / 2));
                 pathBuilder.EndFigure(CanvasFigureLoop.Open);
                 pathBuilder.BeginFigure(this.Position.X, this.Position.Y);
-                pathBuilder.AddLine(this.Position.X - this.Size.Width, this.Position.Y + this.Size.Height / 2);
+                pathBuilder.AddLine((float)(this.Position.X - this.Size.Width), (float)(this.Position.Y + this.Size.Height / 2));
                 pathBuilder.EndFigure(CanvasFigureLoop.Open);
                 drawingSession.DrawGeometry(CanvasGeometry.CreatePath(pathBuilder), this.Color, (float)this.Thickness);
             }

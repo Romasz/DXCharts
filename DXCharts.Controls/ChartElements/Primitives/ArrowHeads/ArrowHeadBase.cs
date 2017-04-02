@@ -16,17 +16,16 @@ namespace DXCharts.Controls.ChartElements.Primitives
     using Classes;
     using Interfaces;
     using Microsoft.Graphics.Canvas;
-    using Microsoft.Graphics.Canvas.Text;
     using Windows.UI;
     using Windows.Foundation;
 
-    public abstract class TickBase : IChartPointElement
+    public abstract class ArrowheadBase : IChartElement, IInvertible
     {
         protected double AngleInRadians { get; private set; }
         /// <summary>
-        /// Orientation in degrees
+        /// Orientation - set in degrees, get in radians
         /// </summary>
-        public double Angle
+        protected double Angle
         {
             get { return AngleInRadians * Math.PI / 180; }
             set { AngleInRadians = value / 180 * Math.PI; }
@@ -40,28 +39,19 @@ namespace DXCharts.Controls.ChartElements.Primitives
         /// <summary>
         /// Position at which element will be drawn
         /// </summary>
-        public ChartPoint Position { get; set; }
+        public ChartPoint Position;
 
         /// <summary>
-        /// Size of the element
+        /// Size of the element - rectanle in which it will be drawn
         /// </summary>
         public Size Size { get; set; }
 
-        /// <summary>
-        /// Thickness of arrow's lines
-        /// </summary>
-        public double Thickness { get; set; }
+
+        public bool IsInverted { get; set; }
 
         /// <summary>
-        /// Label to be shown
+        /// Value indicating if element should be inverted
         /// </summary>
-        public string Label { get; set; }
-
-        /// <summary>
-        /// Format of the text
-        /// </summary>
-        public CanvasTextFormat TextFormat { get; set; }
-
         public abstract void DrawOnCanvas(CanvasDrawingSession drawingSession);
     }
 }

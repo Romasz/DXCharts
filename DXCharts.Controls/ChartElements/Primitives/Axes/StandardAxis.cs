@@ -14,228 +14,205 @@
 namespace DXCharts.Controls.ChartElements.Primitives
 {
     using System;
-    using Interfaces;
     using Classes;
     using Microsoft.Graphics.Canvas;
-    using Microsoft.Graphics.Canvas.Geometry;
-    using Windows.UI;
+    using Windows.Foundation;
+    using Windows.UI.Xaml;
+    using System.Collections.Generic;
 
-    public class StandardAxis : IChartAxis
+    public class StandardAxis : AxisBase
     {
         /// <summary>
-        /// Color of the axis
+        /// Position of the axis
         /// </summary>
-        public Color Color { get; set; }
-
-        /// <summary>
-        /// End point of the axis
-        /// </summary>
-        public ChartPoint EndPoint { get; set; }
-
-        /// <summary>
-        /// If axis is working in inverse mode
-        /// </summary>
-        public bool IsInverse { get; set; }
-
-        /// <summary>
-        /// Axis start point
-        /// </summary>
-        public ChartPoint StartPoint { get; set; }
-
-        /// <summary>
-        /// Axis stroke style
-        /// </summary>
-        public CanvasStrokeStyle StrokeStyle { get; set; }
-
-        /// <summary>
-        /// Axis thickness
-        /// </summary>
-        public double Thickness { get; set; }
-
-        /// <summary>
-        /// Element used as arrowhead
-        /// </summary>
-        public IChartPointElement ArrowHead { get; set; }
-
-        /// <summary>
-        /// Element used as tick
-        /// </summary>
-        public TickBase Tick { get; set; }
-
-        /// <summary>
-        /// Data incerement for tick placememnt
-        /// </summary>
-        public double TickIncrement { get; set; }
-
-        /// <summary>
-        /// Pixels per data
-        /// </summary>
-        public double DataRatio { get; set; }
-
-        /// <summary>
-        /// Orgin of data
-        /// </summary>
-        public double DataOrigin { get; set; }
-
-        /// <summary>
-        /// Orgin of axis
-        /// </summary>
-        public float OriginPoint { get; set; }
-
-        public StandardAxis()
+        public AxisPositions Position
         {
-            this.Color = Colors.Gray;
-            this.IsInverse = false;
-            this.StartPoint = default(ChartPoint);
-            this.EndPoint = default(ChartPoint);
-            this.ArrowHead = null;
-            this.Thickness = 1.0f;
-            this.Tick = null;
-            this.TickIncrement = 0.0f;
-            this.DataOrigin = 0.0d;
-            this.StrokeStyle = default(CanvasStrokeStyle);
+            get { return (AxisPositions)GetValue(PositionProperty); }
+            set { SetValue(PositionProperty, value); }
         }
 
-        public void DrawOnCanvas(CanvasDrawingSession drawingSession)
-        {
-            drawingSession.DrawLine(this.StartPoint.X, this.StartPoint.Y, this.EndPoint.X, this.EndPoint.Y, this.Color, (float)this.Thickness, this.StrokeStyle);
+        public static readonly DependencyProperty PositionProperty =
+            DependencyProperty.Register(nameof(Position), typeof(AxisPositions), typeof(StandardAxis), new PropertyMetadata(AxisPositions.None));
 
-            bool isHorizontal = Math.Abs(this.EndPoint.X - this.StartPoint.X) > Math.Abs(this.EndPoint.Y - this.StartPoint.Y);
-            if (this.ArrowHead != null)
+        private bool IsHorizontal => this.Position != AxisPositions.None && (int)this.Position < 4;
+        private bool IsVertical => (int)this.Position > 3;
+        private double offset;
+
+        public StandardAxis() : base()
+        {
+            this.Position = AxisPositions.None;
+            this.offset = 0d;
+        }
+
+        public override void PrepareAxis(Point dataOrigin, double margin)
+        {
+            this.DataOrigin = dataOrigin;
+            this.offset = margin;
+        }
+
+        public override float GetChartCoordinate(double coordinate)
+        {
+            if (!this.IsInverted == !this.IsVertical)
             {
-                this.ArrowHead.Position = this.EndPoint;
-                if (isHorizontal)
+                return (float)(this.offset + DataRatio * (coordinate - dataRange.Minimum));
+            }
+            else
+            {
+                return (float)(this.offset + DataRatio * (dataRange.Maximum - coordinate));
+            }
+        }
+
+        public override void Update(Size windowSize, Thickness axesMargin, PointRange visibleRange)
+        {
+            this.ArrowHead.IsInverted = this.IsInverted;
+            switch (this.Position)
+            {
+                case AxisPositions.HorizontalBottom:
+                    this.dataRange = new DoubleRange(visibleRange.Minimum.X, visibleRange.Maximum.X);
+                    this.DataRatio = windowSize.Width / this.dataRange.Width;
+                    this.isVisible = true;
+                    this.StartPoint = new ChartPoint((float)axesMargin.Left, (float)(windowSize.Height - axesMargin.Bottom));
+                    this.EndPoint = new ChartPoint((float)(windowSize.Width - axesMargin.Right), (float)(windowSize.Height - axesMargin.Bottom));
+                    this.ArrowHead.Position = !this.IsInverted ? this.EndPoint : this.StartPoint;
+                    this.TickLineRange = new DoubleRange(axesMargin.Top, axesMargin.Top + windowSize.Height);
+                    break;
+                case AxisPositions.HorizontalTop:
+                    this.dataRange = new DoubleRange(visibleRange.Minimum.X, visibleRange.Maximum.X);
+                    this.DataRatio = windowSize.Width / this.dataRange.Width;
+                    this.isVisible = true;
+                    this.StartPoint = new ChartPoint((float)axesMargin.Left, (float)(axesMargin.Top));
+                    this.EndPoint = new ChartPoint((float)(windowSize.Width - axesMargin.Right), (float)(axesMargin.Top));
+                    this.ArrowHead.Position = !this.IsInverted ? this.EndPoint : this.StartPoint;
+                    this.TickLineRange = new DoubleRange(axesMargin.Top, axesMargin.Top + windowSize.Height);
+                    break;
+                case AxisPositions.HorizontalFree:
+                    this.dataRange = new DoubleRange(visibleRange.Minimum.X, visibleRange.Maximum.X);
+                    this.DataRatio = windowSize.Width / this.dataRange.Width;
+                    this.isVisible = visibleRange.InVerticalRange(this.DataOrigin.Y);
+                    if (!this.IsInverted)
+                    {
+                        this.StartPoint = new ChartPoint((float)axesMargin.Left, (float)(axesMargin.Top + windowSize.Height * (visibleRange.Maximum.Y - DataOrigin.Y) / visibleRange.Height));
+                        this.EndPoint = new ChartPoint((float)(windowSize.Width - axesMargin.Right), (float)(axesMargin.Top + windowSize.Height * (visibleRange.Maximum.Y - DataOrigin.Y) / visibleRange.Height));
+                        this.ArrowHead.Position = this.EndPoint;
+                    }
+                    else
+                    {
+                        this.StartPoint = new ChartPoint((float)axesMargin.Left, (float)(axesMargin.Top + windowSize.Height * (DataOrigin.Y - visibleRange.Minimum.Y) / visibleRange.Height));
+                        this.EndPoint = new ChartPoint((float)(windowSize.Width - axesMargin.Right), (float)(axesMargin.Top + windowSize.Height * (DataOrigin.Y - visibleRange.Minimum.Y) / visibleRange.Height));
+                        this.ArrowHead.Position = this.StartPoint;
+                    }
+                    this.TickLineRange = new DoubleRange(axesMargin.Top, axesMargin.Top + windowSize.Height);
+                    break;
+                case AxisPositions.VerticalLeft:
+                    this.dataRange = new DoubleRange(visibleRange.Minimum.Y, visibleRange.Maximum.Y);
+                    this.DataRatio = windowSize.Height / this.dataRange.Width;
+                    this.isVisible = true;
+                    this.StartPoint = new ChartPoint((float)axesMargin.Left, (float)axesMargin.Top);
+                    this.EndPoint = new ChartPoint((float)axesMargin.Left, (float)(windowSize.Height - axesMargin.Bottom));
+                    this.ArrowHead.Position = this.IsInverted ? this.EndPoint : this.StartPoint;
+                    this.TickLineRange = new DoubleRange(axesMargin.Left, axesMargin.Left + windowSize.Width);
+                    break;
+                case AxisPositions.VerticalRight:
+                    this.dataRange = new DoubleRange(visibleRange.Minimum.Y, visibleRange.Maximum.Y);
+                    this.DataRatio = windowSize.Height / this.dataRange.Width;
+                    this.isVisible = true;
+                    this.StartPoint = new ChartPoint((float)(windowSize.Width - axesMargin.Right), (float)axesMargin.Top);
+                    this.EndPoint = new ChartPoint((float)(windowSize.Width - axesMargin.Right), (float)(windowSize.Height - axesMargin.Bottom));
+                    this.ArrowHead.Position = this.IsInverted ? this.EndPoint : this.StartPoint;
+                    this.TickLineRange = new DoubleRange(axesMargin.Left, axesMargin.Left + windowSize.Width);
+                    break;
+                case AxisPositions.VerticalFree:
+                    this.dataRange = new DoubleRange(visibleRange.Minimum.Y, visibleRange.Maximum.Y);
+                    this.DataRatio = windowSize.Height / this.dataRange.Width;
+                    this.isVisible = visibleRange.InHorizontalRange(this.DataOrigin.X);
+                    if (!this.IsInverted)
+                    {
+                        this.StartPoint = new ChartPoint((float)(axesMargin.Left + windowSize.Width * (DataOrigin.X - visibleRange.Minimum.X) / visibleRange.Width), (float)axesMargin.Top);
+                        this.EndPoint = new ChartPoint((float)(axesMargin.Left + windowSize.Width * (DataOrigin.X - visibleRange.Minimum.X) / visibleRange.Width), (float)(windowSize.Height - axesMargin.Bottom));
+                        this.ArrowHead.Position = this.StartPoint;
+                    }
+                    else
+                    {
+                        this.StartPoint = new ChartPoint((float)(axesMargin.Left + windowSize.Width * (visibleRange.Maximum.X - DataOrigin.X) / visibleRange.Width), (float)axesMargin.Top);
+                        this.EndPoint = new ChartPoint((float)(axesMargin.Left + windowSize.Width * (visibleRange.Maximum.X - DataOrigin.X) / visibleRange.Width), (float)(windowSize.Height - axesMargin.Bottom));
+                        this.ArrowHead.Position = this.EndPoint;
+                    }
+                    this.TickLineRange = new DoubleRange(axesMargin.Left, axesMargin.Left + windowSize.Width);
+                    break;
+                case AxisPositions.None:
+                default:
+                    this.isVisible = false;
+                    break;
+            }
+        }
+
+        public override List<Tuple<float, double>> CalculateTicks()
+        {
+            List<Tuple<float, double>> listOfTicks = new List<Tuple<float, double>>();
+            if (this.dataRange.InRange(!this.IsVertical ? this.DataOrigin.X : this.DataOrigin.Y))
+            {
+                double data = !this.IsVertical ? this.DataOrigin.X : this.DataOrigin.Y;
+
+                while (data <= this.dataRange.Maximum)
                 {
-                    this.ArrowHead.Angle = this.EndPoint.X > this.StartPoint.X ? 0.0f : 3.1415926535897931f;
+                    listOfTicks.Add(new Tuple<float, double>(GetChartCoordinate(data), data));
+                    data += this.TickIncrement;
                 }
-                else
+
+                data = (!this.IsVertical ? this.DataOrigin.X : this.DataOrigin.Y) - this.TickIncrement;
+                while (data >= this.dataRange.Minimum)
                 {
-                    this.ArrowHead.Angle = this.EndPoint.Y > this.StartPoint.Y ? 3.1415926535897931f / 2 : 3.1415926535897931f * 1.5f;
+                    listOfTicks.Add(new Tuple<float, double>(GetChartCoordinate(data), data));
+                    data -= this.TickIncrement;
                 }
-                this.ArrowHead.DrawOnCanvas(drawingSession);
+            }
+            else
+            {
+                // get nearest tick
+                double data = Math.Ceiling(this.dataRange.Minimum / this.TickIncrement) * this.TickIncrement;
+                do
+                {
+                    listOfTicks.Add(new Tuple<float, double>(GetChartCoordinate(data), data));
+                    data += this.TickIncrement;
+                } while (data <= this.dataRange.Maximum);
             }
 
-            if (this.Tick != null && this.TickIncrement > 0.0f)
-            {
-                if (isHorizontal)
-                {
-                    ChartPoint firstPoint = this.StartPoint.X < this.EndPoint.X ? this.StartPoint : this.EndPoint;
-                    ChartPoint secondPoint = this.StartPoint.X > this.EndPoint.X ? this.StartPoint : this.EndPoint;
-                    double label = DataOrigin;
-                    if (this.OriginPoint <= firstPoint.X)
-                    {
-                        double distance = firstPoint.X - this.OriginPoint;
-                        firstPoint.X += (float)(this.TickIncrement * this.DataRatio - (distance % (this.TickIncrement * this.DataRatio)));
-                        label = DataOrigin + Math.Floor(distance / (this.TickIncrement * this.DataRatio)) * this.TickIncrement;
-                        do
-                        {
-                            this.Tick.Position = firstPoint;
-                            this.Tick.Label = $"{label:0.0}";
-                            this.Tick.DrawOnCanvas(drawingSession);
-                            firstPoint.X += (float)(this.TickIncrement * this.DataRatio);
-                            label += this.TickIncrement;
-                        } while (firstPoint.X <= secondPoint.X);
-                    }
-                    else if (this.DataOrigin <= secondPoint.X)
-                    {
-                        ChartPoint tickPoint = new ChartPoint((float)this.OriginPoint, secondPoint.Y);
-                        tickPoint.X += (float)(this.TickIncrement * this.DataRatio);
-                        label = DataOrigin + this.TickIncrement;
-                        while ((tickPoint.X <= secondPoint.X))
-                        {
-                            this.Tick.Position = tickPoint;
-                            this.Tick.Label = $"{label:0.0}";
-                            this.Tick.DrawOnCanvas(drawingSession);
-                            tickPoint.X += (float)(this.TickIncrement * this.DataRatio);
-                            label += this.TickIncrement;
-                        }
-                        tickPoint = new ChartPoint((float)OriginPoint, secondPoint.Y);
-                        tickPoint.X -= (float)(this.TickIncrement * this.DataRatio);
-                        label = DataOrigin - this.TickIncrement;
-                        while ((tickPoint.X >= firstPoint.X))
-                        {
-                            this.Tick.Position = tickPoint;
-                            this.Tick.Label = $"{label:0.0}";
-                            this.Tick.DrawOnCanvas(drawingSession);
-                            tickPoint.X -= (float)(this.TickIncrement * this.DataRatio);
-                            label -= this.TickIncrement;
-                        }
-                    }
-                    else
-                    {
-                        double distance = this.OriginPoint - firstPoint.X;
-                        firstPoint.X += (float)(this.TickIncrement * this.DataRatio - (distance % (this.TickIncrement * this.DataRatio)));
-                        label = DataOrigin - Math.Floor(distance / (this.TickIncrement * this.DataRatio)) * this.TickIncrement;
-                        do
-                        {
-                            this.Tick.Position = firstPoint;
-                            this.Tick.Label = $"{label:0.0}";
-                            this.Tick.DrawOnCanvas(drawingSession);
-                            firstPoint.X += (float)(this.TickIncrement * this.DataRatio);
-                            label += this.TickIncrement;
-                        } while (firstPoint.X <= secondPoint.X);
+            return listOfTicks;
+        }
 
+        public override void DrawOnCanvas(CanvasDrawingSession drawingSession)
+        {
+            List<Tuple<float, double>> ticks = null;
+
+            if (this.isVisible)
+            {
+                drawingSession.DrawLine(this.StartPoint.X, this.StartPoint.Y, this.EndPoint.X, this.EndPoint.Y, this.Color, (float)this.Thickness, this.StrokeStyle);
+                this.ArrowHead?.DrawOnCanvas(drawingSession);
+
+                if (this.Tick != null && this.TickIncrement > 0.0f)
+                {
+                    ticks = CalculateTicks();
+                    foreach (var tick in ticks)
+                    {
+                        this.Tick.Position = IsHorizontal ? new ChartPoint(tick.Item1, this.StartPoint.Y) : new ChartPoint(this.StartPoint.X, tick.Item1);
+                        this.Tick.Label = $"{tick.Item2:0.0}";
+                        this.Tick.DrawOnCanvas(drawingSession);
                     }
                 }
-                else
-                {
-                    ChartPoint firstPoint = this.StartPoint.Y < this.EndPoint.Y ? this.StartPoint : this.EndPoint;
-                    ChartPoint secondPoint = this.StartPoint.Y > this.EndPoint.Y ? this.StartPoint : this.EndPoint;
-                    double label = DataOrigin;
-                    if (this.OriginPoint <= firstPoint.Y)
-                    {
-                        double distance = firstPoint.Y - this.OriginPoint;
-                        firstPoint.Y += (float)(this.TickIncrement * this.DataRatio - (distance % (this.TickIncrement * this.DataRatio)));
-                        label = DataOrigin - Math.Floor(distance / (this.TickIncrement * this.DataRatio)) * this.TickIncrement;
-                        do
-                        {
-                            this.Tick.Position = firstPoint;
-                            this.Tick.Label = $"{label:0.0}";
-                            this.Tick.DrawOnCanvas(drawingSession);
-                            firstPoint.Y += (float)(this.TickIncrement * this.DataRatio);
-                            label -= this.TickIncrement;
-                        } while (firstPoint.Y <= secondPoint.Y);
-                    }
-                    else if (this.DataOrigin <= secondPoint.Y)
-                    {
-                        ChartPoint tickPoint = new ChartPoint(secondPoint.X, (float)this.OriginPoint);
-                        tickPoint.Y += (float)(this.TickIncrement * this.DataRatio);
-                        label = DataOrigin - this.TickIncrement;
-                        while ((tickPoint.Y <= secondPoint.Y))
-                        {
-                            this.Tick.Position = tickPoint;
-                            this.Tick.Label = $"{label:0.0}";
-                            this.Tick.DrawOnCanvas(drawingSession);
-                            tickPoint.Y += (float)(this.TickIncrement * this.DataRatio);
-                            label -= this.TickIncrement;
-                        }
-                        tickPoint = new ChartPoint(secondPoint.X, (float)OriginPoint);
-                        tickPoint.Y -= (float)(this.TickIncrement * this.DataRatio);
-                        label = DataOrigin + this.TickIncrement;
-                        while ((tickPoint.Y >= firstPoint.Y))
-                        {
-                            this.Tick.Position = tickPoint;
-                            this.Tick.Label = $"{label:0.0}";
-                            this.Tick.DrawOnCanvas(drawingSession);
-                            tickPoint.Y -= (float)(this.TickIncrement * this.DataRatio);
-                            label += this.TickIncrement;
-                        }
-                    }
-                    else
-                    {
-                        double distance = this.OriginPoint - firstPoint.Y;
-                        firstPoint.Y += (float)(this.TickIncrement * this.DataRatio - (distance % (this.TickIncrement * this.DataRatio)));
-                        label = DataOrigin + Math.Floor(distance / (this.TickIncrement * this.DataRatio)) * this.TickIncrement;
-                        do
-                        {
-                            this.Tick.Position = firstPoint;
-                            this.Tick.Label = $"{label:0.0}";
-                            this.Tick.DrawOnCanvas(drawingSession);
-                            firstPoint.Y += (float)(this.TickIncrement * this.DataRatio);
-                            label -= this.TickIncrement;
-                        } while (firstPoint.Y <= secondPoint.Y);
+            }
 
-                    }
+            if (this.IsTickLine && this.TickLine != null && this.TickIncrement > 0.0f)
+            {
+                if (ticks == null)
+                {
+                    ticks = CalculateTicks();
+                }
+
+                foreach (var tick in ticks)
+                {
+                    this.TickLine.StartPoint = IsHorizontal ? new ChartPoint(tick.Item1, (float)this.TickLineRange.Minimum) : new ChartPoint((float)this.TickLineRange.Minimum, tick.Item1);
+                    this.TickLine.EndPoint = IsHorizontal ? new ChartPoint(tick.Item1, (float)this.TickLineRange.Maximum) : new ChartPoint((float)this.TickLineRange.Maximum, tick.Item1);
+                    this.TickLine.DrawOnCanvas(drawingSession);
                 }
             }
         }

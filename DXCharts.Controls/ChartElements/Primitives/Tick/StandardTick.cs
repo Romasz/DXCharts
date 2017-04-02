@@ -16,20 +16,21 @@ namespace DXCharts.Controls.ChartElements.Primitives
     using Microsoft.Graphics.Canvas;
     using Microsoft.Graphics.Canvas.Text;
     using System.Numerics;
+    using Windows.Foundation;
 
     public class StandardTick : TickBase
     {
         public StandardTick()
         {
-            this.Size = new ElementSize(10, 10); // for test
+            this.Size = new Size(10d, 10d); // for test
             this.TextFormat = new CanvasTextFormat() { FontSize = 12 }; // for test
         }
 
         public override void DrawOnCanvas(CanvasDrawingSession drawingSession)
         {
             var previousTransform = drawingSession.Transform;
-            drawingSession.Transform = Matrix3x2.CreateRotation((float)this.Angle, new Vector2(this.Position.X, this.Position.Y));
-            drawingSession.DrawLine(this.Position.X, this.Position.Y - this.Size.Height / 2, this.Position.X, this.Position.Y + this.Size.Height / 2, this.Color, (float)this.Thickness);
+            drawingSession.Transform = Matrix3x2.CreateRotation((float)this.AngleInRadians, new Vector2(this.Position.X, this.Position.Y));
+            drawingSession.DrawLine(this.Position.X, (float)(this.Position.Y - this.Size.Height / 2), this.Position.X, (float)(this.Position.Y + this.Size.Height / 2), this.Color, (float)this.Thickness);
             drawingSession.Transform = previousTransform;
             drawingSession.DrawText(this.Label, this.Position.X + 5, this.Position.Y + 3, this.Color, this.TextFormat);
         }
