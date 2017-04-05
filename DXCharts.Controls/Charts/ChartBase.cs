@@ -19,6 +19,7 @@ namespace DXCharts.Controls.Charts
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Diagnostics;
+    using System.Linq;
     using Windows.Foundation;
     using Windows.UI.Xaml;
     using Windows.UI.Xaml.Controls;
@@ -109,7 +110,7 @@ namespace DXCharts.Controls.Charts
                 axis.DrawOnCanvas(args.DrawingSession);
             }
 
-            foreach (var dataSource in this.DataSources)
+            foreach (var dataSource in this.DataSources.Where(x => x.IsPresented))
             {
                 dataSource.PresentData(args.DrawingSession);
             }

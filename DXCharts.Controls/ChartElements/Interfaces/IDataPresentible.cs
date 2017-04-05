@@ -21,6 +21,11 @@ namespace DXCharts.Controls.ChartElements.Interfaces
     public interface IDataPresentible
     {
         /// <summary>
+        /// Informs if data should be presented
+        /// </summary>
+        bool IsPresented { get; set; }
+
+        /// <summary>
         /// Method responsible for showing data
         /// </summary>
         /// <param name="drawingSession"><see cref="CanvasDrawingSession"/> on which element will be showed</param>

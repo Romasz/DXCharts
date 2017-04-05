@@ -15,6 +15,7 @@ namespace DXCharts.Controls.ChartElements.Primitives
     using Interfaces;
     using System.Collections.Generic;
     using Microsoft.Graphics.Canvas;
+    using System;
 
     public class DataSource<T> : IDataSource<T>
     {
@@ -22,6 +23,8 @@ namespace DXCharts.Controls.ChartElements.Primitives
 
         public IChartDataPresenter<T> DataPresenter { get; set; }
 
+        public bool IsPresented { get; set; } = true;
+       
         public void PresentData(CanvasDrawingSession drawingSession)
         {
             if (this.DataPresenter != null && this.Data != null)
