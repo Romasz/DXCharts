@@ -109,11 +109,14 @@
   <ItemGroup>
     <Compile Include="ChartElements\Enums\Arrowhead.cs" />
     <Compile Include="ChartElements\Enums\Axes.cs" />
+    <Compile Include="ChartElements\Interfaces\IDataPresentible.cs" />
+    <Compile Include="ChartElements\Interfaces\IDataSource.cs" />
     <Compile Include="ChartElements\Interfaces\IInvertible.cs" />
     <Compile Include="ChartElements\Interfaces\IChartDataPresenter.cs" />
     <Compile Include="ChartElements\Interfaces\IChartAxis.cs" />
     <Compile Include="ChartElements\Primitives\ArrowHeads\LineArrowhead.cs" />
     <Compile Include="ChartElements\Primitives\Axes\AxisBase.cs" />
+    <Compile Include="ChartElements\Primitives\DataSource\DataSource.cs" />
     <Compile Include="ChartElements\Primitives\Lines\DashedLine.cs" />
     <Compile Include="ChartElements\Primitives\Tick\TickBase.cs" />
     <Compile Include="ChartElements\Primitives\Axes\StandardAxis.cs" />

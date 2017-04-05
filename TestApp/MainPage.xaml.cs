@@ -13,15 +13,15 @@
 namespace TestApp
 {
     using DXCharts.Controls.ChartElements.Interfaces;
+    using DXCharts.Controls.ChartElements.Primitives;
+    using DXCharts.Controls.Charts;
     using DXCharts.Controls.Classes;
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
-    using System.Diagnostics;
     using System.Linq;
-    using System.Numerics;
     using Windows.Foundation;
-    using Windows.UI.Input;
+    using Windows.UI;
     using Windows.UI.Xaml.Controls;
 
     /// <summary>
@@ -36,10 +36,12 @@ namespace TestApp
 
         public List<Point> dataPoints = new List<Point>();
 
-        public IChartDataPresenter DataPresenter { get; set; }
+        public List<DataSource<Point>> DataSources { get; set; } = new List<DataSource<Point>>();
 
-        // ugly way for testing
-        public List<Point> DataPoints => dataPoints.ToList();
+        private PointPresenter<Point> PointPresenter;
+        private LinePresenter<Point> LinePresenter;
+
+        public int DataPointsCount { get; set; }
 
         public AxisPositions HorizontalAxisPosition { get; set; } = AxisPositions.HorizontalBottom;
         public AxisPositions VerticalAxisPosition { get; set; } = AxisPositions.VerticalLeft;
@@ -97,9 +99,22 @@ namespace TestApp
         public MainPage()
         {
             this.dataPoints.Add(new Point(1, 1));
+            this.DataPointsCount = 1;
+            this.DataSources.Add(new DataSource<Point> { Data = this.dataPoints });
             this.InitializeComponent();
             this.DataContext = this;
-            this.DataPresenter = this.Resources["PointPresenter"] as IChartDataPresenter;
+        }
+
+        private void ChartLoaded(object sender, Windows.UI.Xaml.RoutedEventArgs e)
+        {
+            var chart = sender as CartesianChart;
+            chart.Loaded -= ChartLoaded;
+            this.PointPresenter = new PointPresenter<Point> { Convert = chart.Convert, IsPointInRange = chart.IsPointInRange, PointElement = new StandardPoint { Color = Colors.Red, Size = new Size(2, 2) } };
+            this.LinePresenter = new LinePresenter<Point> { Convert = chart.Convert, IsPointInRange = chart.IsPointInRange, LineElement = new StandardLine { Color = Colors.Red, Thickness = 1 } };
+            foreach (var dataSource in this.DataSources)
+            {
+                dataSource.DataPresenter = this.PointPresenter;
+            }
         }
 
         private void AddPoints(int number)
@@ -110,7 +125,9 @@ namespace TestApp
                 double randY = random.NextDouble() * ChartRange.Height;
                 dataPoints.Add(new Point(ChartRange.Minimum.X + randX, ChartRange.Minimum.Y + randY));
             }
-            this.RaiseProperty(nameof(DataPoints));
+            this.DataPointsCount = dataPoints.Count;
+            this.RaiseProperty(nameof(DataPointsCount));
+            this.TheChart.RedrawChart();
         }
 
         private void SmallButton_Click(object sender, Windows.UI.Xaml.RoutedEventArgs e) => AddPoints(10);
@@ -166,14 +183,19 @@ namespace TestApp
             var cBox = sender as ComboBox;
             if (cBox.SelectedIndex == 1)
             {
-                this.DataPresenter = this.Resources["LinePresenter"] as IChartDataPresenter;
+                foreach (var dataSource in this.DataSources)
+                {
+                    dataSource.DataPresenter = this.LinePresenter;
+                }
             }
             else
             {
-                this.DataPresenter = this.Resources["PointPresenter"] as IChartDataPresenter;
-
+                foreach (var dataSource in this.DataSources)
+                {
+                    dataSource.DataPresenter = this.PointPresenter;
+                }
             }
-            this.RaiseProperty(nameof(DataPresenter));
+            this.TheChart.RedrawChart();
         }
 
         private void HorizontalPlacement_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -213,5 +235,6 @@ namespace TestApp
             this.RaiseProperty(nameof(VerticalAxisPosition));
             this.TheChart.RedrawChart();
         }
+
     }
 }

@@ -8,27 +8,14 @@
     xmlns:charts="using:DXCharts.Controls.Charts"
     xmlns:chartsprim="using:DXCharts.Controls.ChartElements.Primitives"
     mc:Ignorable="d">
-
-    <Page.Resources>
-        <chartsprim:PointPresenter Data="{Binding DataPoints, Mode=OneWay}" x:Key="PointPresenter">
-            <chartsprim:PointPresenter.PointElement>
-                <chartsprim:StandardPoint Color="Red"/>
-            </chartsprim:PointPresenter.PointElement>
-        </chartsprim:PointPresenter>
-        <chartsprim:LinePresenter Data="{Binding DataPoints, Mode=OneWay}" x:Key="LinePresenter">
-            <chartsprim:LinePresenter.LineElement>
-                <chartsprim:StandardLine Color="Red" Thickness="1"/>
-            </chartsprim:LinePresenter.LineElement>
-        </chartsprim:LinePresenter>
-    </Page.Resources>
-    
+  
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
         <charts:CartesianChart x:Name="TheChart" Grid.Column="0" Padding="5" AxesOrigin="0,0" VisibleRange="{x:Bind ChartRange, Mode=OneWay}"
-                               DataPresenter="{x:Bind DataPresenter, Mode=OneWay}" PointerPressed="CartesianChart_PointerPressed" PointerMoved="CartesianChart_PointerMoved"
+                               DataSources="{Binding DataSources, Mode=OneWay}"  PointerPressed="CartesianChart_PointerPressed" PointerMoved="CartesianChart_PointerMoved" Loaded="ChartLoaded"
                                PointerReleased="CartesianChart_PointerReleased" ManipulationMode="All" PointerWheelChanged="CartesianChart_PointerWheelChanged">
             <charts:CartesianChart.HorizontalAxis>
                 <chartsprim:StandardAxis Color="Green" TickIncrement="1" Position="{x:Bind HorizontalAxisPosition, Mode=OneWay}" 
@@ -65,7 +52,7 @@
                 <Button x:Name="SmallBtn" RelativePanel.Below="AddTBl" RelativePanel.AlignLeftWithPanel="True" Content="10" Margin="10" Click="SmallButton_Click"/>
                 <Button RelativePanel.Below="AddTBl" RelativePanel.RightOf="SmallBtn" Content="10000" Margin="10" Click="BigButton_Click"/>
             </RelativePanel>
-            <TextBlock Text="{x:Bind DataPoints.Count, Mode=OneWay}" HorizontalAlignment="Center" FontSize="18"/>
+            <TextBlock Text="{x:Bind DataPointsCount, Mode=OneWay}" HorizontalAlignment="Center" FontSize="18"/>
             <ComboBox Header="Present:" Margin="10" SelectionChanged="PointStyle_SelectionChanged" SelectedIndex="0">
                 <x:String>points</x:String>
                 <x:String>lines</x:String>

@@ -14,6 +14,7 @@ namespace DXCharts.Controls.Charts
 {
     using ChartElements.Primitives;
     using Classes;
+    using System;
     using Windows.Foundation;
     using Windows.UI.Xaml;
 
@@ -77,22 +78,7 @@ namespace DXCharts.Controls.Charts
             this.VerticalAxis?.Update(new Size(windowSize.Width - this.AxesMargin.Left - this.AxesMargin.Right, windowSize.Height - this.AxesMargin.Top - this.AxesMargin.Bottom), this.AxesMargin, this.VisibleRange);
         }
 
-
-        public override void PrepareDataPresenter()
-        {
-            if (this.DataPresenter != null)
-            {
-                this.DataPresenter.Convert = (point) => new ChartPoint(this.HorizontalAxis.GetChartCoordinate(point.X), this.VerticalAxis.GetChartCoordinate(point.Y));
-                if (this.DataPresenter is LinePresenter)
-                {
-                    this.DataPresenter.IsPointInRange = (point) => this.VisibleRange.InHorizontalRange(point.X);
-                }
-                else
-                {
-                    this.DataPresenter.IsPointInRange = (point) => this.VisibleRange.InRange(point);
-                }
-                this.DataPresenter.CollectionChanged += (s, e) => this.OnPropertyChanged(this, null);
-            }
-        }
+        public ChartPoint Convert(Point point) => new ChartPoint(this.HorizontalAxis.GetChartCoordinate(point.X), this.VerticalAxis.GetChartCoordinate(point.Y));
+        public bool IsPointInRange(Point point) => this.VisibleRange.InHorizontalRange(point.X);
     }
 }

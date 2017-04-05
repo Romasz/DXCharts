@@ -22,7 +22,7 @@ namespace DXCharts.Controls.ChartElements.Primitives
     using System.Collections.Specialized;
     using System.Linq;
 
-    public class LinePresenter : DependencyObject, IChartDataPresenter
+    public class LinePresenter<T> : DependencyObject, IChartDataPresenter<T>
     {
         public IChartLineElement LineElement
         {
@@ -31,7 +31,7 @@ namespace DXCharts.Controls.ChartElements.Primitives
         }
 
         public static readonly DependencyProperty LineElementProperty =
-            DependencyProperty.Register(nameof(LineElement), typeof(IChartLineElement), typeof(LinePresenter), new PropertyMetadata(null, OnPropertyChangedStatic));
+            DependencyProperty.Register(nameof(LineElement), typeof(IChartLineElement), typeof(LinePresenter<T>), new PropertyMetadata(null, OnPropertyChangedStatic));
 
         public event NotifyCollectionChangedEventHandler CollectionChanged;
 
@@ -40,31 +40,18 @@ namespace DXCharts.Controls.ChartElements.Primitives
             // later
         }
 
-        private static void OnDataPropertyChangedStatic(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            (d as LinePresenter)?.CollectionChanged?.Invoke((d as LinePresenter).Data, null);
-        }
+        public Predicate<T> IsPointInRange { get; set; }
 
-        public IEnumerable<Point> Data
-        {
-            get { return (IEnumerable<Point>)GetValue(DataProperty); }
-            set { SetValue(DataProperty, value); }
-        }
-
-        public static readonly DependencyProperty DataProperty =
-            DependencyProperty.Register(nameof(Data), typeof(IEnumerable<Point>), typeof(LinePresenter), new PropertyMetadata(null, OnDataPropertyChangedStatic));
-
-        public Predicate<Point> IsPointInRange { get; set; }
-
-        public Func<Point, ChartPoint> Convert { get; set; }
+        public Func<T, ChartPoint> Convert { get; set; }
 
         public LinePresenter() { }
 
-        public void PresentData(CanvasDrawingSession drawingSession)
+        public void PresentData(CanvasDrawingSession drawingSession, IEnumerable<T> data)
         {
-            if (this.LineElement != null && this.IsPointInRange != null && this.Convert != null && this.Data != null && this.Data.Any())
+            if (this.LineElement != null && this.IsPointInRange != null && this.Convert != null && data != null && data.Any())
             {
-                var sorted = this.Data.Where(d => this.IsPointInRange(d)).OrderBy(d => d.X).Select(d => this.Convert(d)).ToArray();
+                var sorted = data.Where(d => this.IsPointInRange(d)).Select(d => this.Convert(d)).ToArray();
+                //var sorted = this.Data.Where(d => this.IsPointInRange(d)).OrderBy(d => d.X).Select(d => this.Convert(d)).ToArray();
                 if (sorted.Length > 1)
                 {
                     this.LineElement.EndPoint = sorted[0];

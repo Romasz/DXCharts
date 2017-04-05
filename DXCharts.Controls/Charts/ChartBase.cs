@@ -16,6 +16,7 @@ namespace DXCharts.Controls.Charts
     using ChartElements.Interfaces;
     using Classes;
     using Microsoft.Graphics.Canvas.UI.Xaml;
+    using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Diagnostics;
     using Windows.Foundation;
@@ -35,17 +36,16 @@ namespace DXCharts.Controls.Charts
         public static readonly DependencyProperty VisibleRangeProperty =
             DependencyProperty.Register(nameof(VisibleRange), typeof(PointRange), typeof(ChartBase), new PropertyMetadata(null, OnPropertyChangedStatic));
 
-        public IChartDataPresenter DataPresenter
+        public IEnumerable<IDataPresentible> DataSources
         {
-            get { return (IChartDataPresenter)GetValue(DataPresenterProperty); }
-            set { SetValue(DataPresenterProperty, value); }
+            get { return (IEnumerable<IDataPresentible>)GetValue(DataSourcesProperty); }
+            set { SetValue(DataSourcesProperty, value); }
         }
 
-        public static readonly DependencyProperty DataPresenterProperty =
-            DependencyProperty.Register(nameof(DataPresenter), typeof(IChartDataPresenter), typeof(ChartBase), new PropertyMetadata(null,
+        public static readonly DependencyProperty DataSourcesProperty =
+            DependencyProperty.Register(nameof(DataSources), typeof(IEnumerable<IDataPresentible>), typeof(ChartBase), new PropertyMetadata(null,
                 new PropertyChangedCallback((d, e) =>
                 {
-                    (d as ChartBase)?.PrepareDataPresenter();
                     OnPropertyChangedStatic(d, e);
                 })));
 
@@ -54,7 +54,6 @@ namespace DXCharts.Controls.Charts
 
         public abstract void CreateAxes();
         public abstract void UpdateAxes(Size windowSize);
-        public abstract void PrepareDataPresenter();
 
         private static void OnPropertyChangedStatic(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -103,16 +102,16 @@ namespace DXCharts.Controls.Charts
         {
             Debug.WriteLine($"Redrawing the canvas");
             // first update axes - important to have updated DataRatio and methods responsible for geting ChartPoints
-            UpdateAxes(new Size(sender.ActualWidth, sender.ActualHeight));
+            this.UpdateAxes(new Size(sender.ActualWidth, sender.ActualHeight));
 
-            foreach (var axis in AxesCollection)
+            foreach (var axis in this.AxesCollection)
             {
                 axis.DrawOnCanvas(args.DrawingSession);
             }
 
-            if (DataPresenter != null)
+            foreach (var dataSource in this.DataSources)
             {
-                DataPresenter.PresentData(args.DrawingSession);
+                dataSource.PresentData(args.DrawingSession);
             }
         }
     }

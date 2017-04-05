@@ -13,32 +13,17 @@
 
 namespace DXCharts.Controls.ChartElements.Interfaces
 {
-    using Classes;
     using Microsoft.Graphics.Canvas;
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.Specialized;
 
     /// <summary>
-    /// The interface of for data presenter
+    /// The interface of element able to present data
     /// </summary>
-    public interface IChartDataPresenter<T> : INotifyCollectionChanged
+    public interface IDataPresentible
     {
         /// <summary>
-        /// Method used to check if point is in range;
+        /// Method responsible for showing data
         /// </summary>
-        /// <returns></returns>
-        Predicate<T> IsPointInRange { get; set; }
-
-        /// <summary>
-        /// Method used to convert data to chart points
-        /// </summary>
-        Func<T, ChartPoint> Convert { get; set; }
-
-        /// <summary>
-        /// Method responsible for drawing data
-        /// </summary>
-        /// <param name="drawingSession"><see cref="CanvasDrawingSession"/> on which element will be drawn</param>
-        void PresentData(CanvasDrawingSession drawingSession, IEnumerable<T> data);
+        /// <param name="drawingSession"><see cref="CanvasDrawingSession"/> on which element will be showed</param>
+        void PresentData(CanvasDrawingSession drawingSession);
     }
 }
