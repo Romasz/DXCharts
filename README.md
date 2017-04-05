@@ -5,7 +5,8 @@ Supports:
  - cartesian chart with two axes,
  - axes can have differnt ratio, can be inverted, have different position and styles,
  - additional lines with different styles,
- - different data presenters (point, line, etc.)
+ - different data presenters (point, line, etc.),
+ - presentation of multiple data on single chart
  
 Provided sample:
  - includes simple chart with multiple data points,
