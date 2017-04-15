@@ -16,14 +16,22 @@ namespace DXCharts.Controls.ChartElements.Primitives
     using System.Collections.Generic;
     using Microsoft.Graphics.Canvas;
     using System;
+    using Windows.UI.Xaml;
 
-    public class DataSource<T> : IDataSource<T>
+    public class DataSource<T> : DependencyObject, IDataSource<T>
     {
         public IEnumerable<T> Data { get; set; }
 
         public IChartDataPresenter<T> DataPresenter { get; set; }
 
-        public bool IsPresented { get; set; } = true;
+        public bool IsPresented
+        {
+            get { return (bool)GetValue(IsPresentedProperty); }
+            set { SetValue(IsPresentedProperty, value); }
+        }
+
+        public static readonly DependencyProperty IsPresentedProperty =
+            DependencyProperty.Register(nameof(IsPresented), typeof(bool), typeof(DataSource<T>), new PropertyMetadata(true));
        
         public void PresentData(CanvasDrawingSession drawingSession)
         {

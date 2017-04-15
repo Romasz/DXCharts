@@ -77,6 +77,24 @@ namespace DXCharts.Controls.ChartElements.Primitives
         /// </summary>
         public double TickIncrement { get; set; }
 
+        /// <summary>
+        /// Number of ticks if <see cref="IsTickAutoAdjust"/> enabled 
+        /// </summary>
+        public double NumberOfAutoTicks { get; set; }
+
+        /// <summary>
+        /// Tells if tick positioning should be relative to chart range
+        /// If so, then <see cref="TickIncrement"/> is number of ticks visible in range
+        /// </summary>
+        public bool IsTickAutoAdjust
+        {
+            get { return (bool)GetValue(IsTickAutoAdjustProperty); }
+            set { SetValue(IsTickAutoAdjustProperty, value); }
+        }
+
+        public static readonly DependencyProperty IsTickAutoAdjustProperty =
+            DependencyProperty.Register(nameof(IsTickAutoAdjust), typeof(bool), typeof(AxisBase), new PropertyMetadata(false));
+
 
         /// <summary>
         /// Tick lines minimum and maximum window's point

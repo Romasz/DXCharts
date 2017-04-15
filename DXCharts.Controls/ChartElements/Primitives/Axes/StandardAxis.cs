@@ -19,6 +19,7 @@ namespace DXCharts.Controls.ChartElements.Primitives
     using Windows.Foundation;
     using Windows.UI.Xaml;
     using System.Collections.Generic;
+    using System.Diagnostics;
 
     public class StandardAxis : AxisBase
     {
@@ -149,9 +150,17 @@ namespace DXCharts.Controls.ChartElements.Primitives
         public override List<Tuple<float, double>> CalculateTicks()
         {
             List<Tuple<float, double>> listOfTicks = new List<Tuple<float, double>>();
+
+            if (this.IsTickAutoAdjust && this.NumberOfAutoTicks > 1)
+            {
+                this.TickIncrement = this.dataRange.Width / (this.NumberOfAutoTicks - 1);
+            }
+
             if (this.dataRange.InRange(!this.IsVertical ? this.DataOrigin.X : this.DataOrigin.Y))
             {
                 double data = !this.IsVertical ? this.DataOrigin.X : this.DataOrigin.Y;
+
+
 
                 while (data <= this.dataRange.Maximum)
                 {
@@ -168,13 +177,21 @@ namespace DXCharts.Controls.ChartElements.Primitives
             }
             else
             {
-                // get nearest tick
                 double data = Math.Ceiling(this.dataRange.Minimum / this.TickIncrement) * this.TickIncrement;
                 do
                 {
                     listOfTicks.Add(new Tuple<float, double>(GetChartCoordinate(data), data));
                     data += this.TickIncrement;
                 } while (data <= this.dataRange.Maximum);
+
+                Debug.WriteLine($"Data of ticks: {data}, datarange: {this.dataRange.Minimum} - {this.dataRange.Maximum}");
+
+                Debug.Write($"Calculated ticks: ");
+                foreach (var item in listOfTicks)
+                {
+                    Debug.Write($"{item.Item1} {item.Item2} | ");
+                }
+                Debug.WriteLine("|");
             }
 
             return listOfTicks;
@@ -189,7 +206,7 @@ namespace DXCharts.Controls.ChartElements.Primitives
                 drawingSession.DrawLine(this.StartPoint.X, this.StartPoint.Y, this.EndPoint.X, this.EndPoint.Y, this.Color, (float)this.Thickness, this.StrokeStyle);
                 this.ArrowHead?.DrawOnCanvas(drawingSession);
 
-                if (this.Tick != null && this.TickIncrement > 0.0f)
+                if (this.Tick != null && (this.TickIncrement > 0.0f || (this.IsTickAutoAdjust && this.NumberOfAutoTicks > 1)))
                 {
                     ticks = CalculateTicks();
                     foreach (var tick in ticks)
@@ -201,7 +218,7 @@ namespace DXCharts.Controls.ChartElements.Primitives
                 }
             }
 
-            if (this.IsTickLine && this.TickLine != null && this.TickIncrement > 0.0f)
+            if (this.IsTickLine && this.TickLine != null && (this.TickIncrement > 0.0f || (this.IsTickAutoAdjust && this.NumberOfAutoTicks > 1)))
             {
                 if (ticks == null)
                 {
